@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0e1233">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Ascension v0.19.0 — Chaîne des Puys, Pays basque & Jura</title>
+<meta name="version" content="0.19.0">
+<link rel="preload" href="assets/fonts/PressStart2P-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="icon" href="assets/icon-512.png">
+<link rel="apple-touch-icon" href="../img/apple-touch-icon.png">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/site-bridge.css">
+</head>
+<body>
+<canvas id="view" aria-label="Jeu Ascension"></canvas>
+
+<div id="gtoast" class="gtoast hidden" role="status"></div>
+<div id="saveWarn" class="sys-banner hidden" role="alert">
+  <p>Sauvegarde locale indisponible — exportez un code</p>
+  <div class="sys-banner-btns">
+    <button type="button" class="pix-btn small" id="btnSaveWarnExport">Exporter un code</button>
+    <button type="button" class="pix-btn small alt" id="btnSaveWarnRetry">Réessayer</button>
+  </div>
+</div>
+<div id="ctxLost" class="sys-banner hidden" role="alert">
+  <p>Rendu interrompu — touchez pour reprendre</p>
+</div>
+<div id="prompts" class="prompts hidden" aria-hidden="true"></div>
+
+<div id="loading" class="screen center"><div class="logo">ASCENSION</div><div class="sub">Chargement…</div></div>
+
+<!-- Interface de la carte -->
+<div id="mapUI" class="screen hidden">
+  <div class="topbar">
+    <div class="brand"><span class="logo-s">ASCENSION</span><span class="sub-s" id="mapSub">Chaîne des Puys</span></div>
+    <a class="site-back" href="../index.html" title="Retour au site officiel" aria-label="Retour au site officiel">← Site</a>
+    <div class="spacer"></div>
+    <div class="chip" id="mapProgress">0 / 6</div>
+    <button class="icon-btn" id="btnInv" aria-label="Inventaire">🎒</button>
+    <button class="icon-btn" id="btnChar" aria-label="Changer de personnage">🧗</button>
+    <button class="icon-btn" id="btnSettings" aria-label="Réglages">⚙</button>
+  </div>
+  <div class="world-bar" id="worldBar">
+    <button class="pix-btn small alt" id="worldPrev" aria-label="Monde précédent">◀</button>
+    <div class="world-name" id="worldName"><b>MONDE 1</b><span>Chaîne des Puys</span></div>
+    <button class="pix-btn small alt" id="worldNext" aria-label="Monde suivant">▶</button>
+  </div>
+  <div class="ver-tag" id="mapVer"></div>
+  <div class="map-hint" id="mapHint">Touche une pastille · fais glisser pour explorer</div>
+  <div class="map-nav">
+    <button class="pix-btn small" id="mapPrev" aria-label="Sommet précédent">◀</button>
+    <button class="pix-btn" id="mapOpen">Fiche</button>
+    <button class="pix-btn small" id="mapNext" aria-label="Sommet suivant">▶</button>
+    <button class="pix-btn small alt hidden" id="btnMapTrain" aria-label="Revoir le voyage en train" title="Revoir le voyage en train">🚂</button>
+    <button class="pix-btn small alt hidden" id="btnMapPara" aria-label="Revoir le vol en parapente" title="Revoir le vol en parapente">🪂</button>
+    <button class="pix-btn small alt" id="btnMapTrail" aria-pressed="false" aria-label="Mode Trail" title="Mode Trail">👻</button>
+  </div>
+</div>
+
+<!-- Interface du niveau -->
+<div id="hud" class="screen hidden">
+  <div class="hud-row">
+    <div class="hud-block"><div id="hearts" class="hearts"></div></div>
+    <div class="hud-block grow">
+      <div class="water-wrap"><canvas id="bottleIcon" width="48" height="64"></canvas><div class="water-bar" id="waterBar"><div class="water-fill" id="waterFill"></div><div class="water-lbl" id="waterLbl">100%</div></div></div>
+    </div>
+    <div class="chip find-chip hidden" id="findChip" title="Objets du carnet trouvés">◆ 0/3</div>
+    <button class="icon-btn" id="btnPause" aria-label="Pause">❚❚</button>
+  </div>
+  <div class="hud-row sub">
+    <div class="alt" id="altLbl">990 m</div>
+    <div class="chip route-chip hidden" id="routeChip"></div>
+    <div class="prog"><div class="prog-fill" id="progFill"></div></div>
+    <div class="alt r" id="altTop">1 167 m</div>
+  </div>
+  <div class="hud-row trail-row hidden" id="trailHud" aria-live="polite">
+    <div class="trail-chip"><span class="trail-tag">TRAIL</span><span id="trailTime">0:00</span><span id="trailGap" class="flat">—</span></div>
+  </div>
+  <div class="hud-stack" id="hudStack">
+    <div id="hint" class="hint hidden"></div>
+    <div id="toast" class="toast hidden"></div>
+  </div>
+  <div id="touch" class="touch hidden">
+    <div class="dpad"><button id="btnLeft" class="tbtn" aria-label="Gauche">◀</button><button id="btnRight" class="tbtn" aria-label="Droite">▶</button></div>
+    <button id="btnJump" class="tbtn jump" aria-label="Sauter">▲</button>
+  </div>
+</div>
+
+<!-- Voyage en train (v0.5.1) : bouton « Passer » (uniquement quand on revoit l'animation) et écran temporaire « Niveau 7 — bientôt » -->
+<div id="cineUI" class="screen hidden"><button class="pix-btn small alt skip-btn hidden" id="btnSkipCine">Passer ▶▶</button></div>
+<div id="soonUI" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="soonTitle">
+  <div class="soon-tag">NIVEAU 7 — BIENTÔT</div>
+  <div class="soon-panel">
+    <h2 id="soonTitle">Le Pays basque t’attend</h2>
+    <p>Le petit train t’a déposé au pied de la montagne. De nouveaux sommets arrivent bientôt !</p>
+    <div class="soon-actions"><button class="pix-btn" id="btnSoonBack">Retour à la carte</button><button class="pix-btn alt" id="btnSoonReplay">🚂 Revoir le voyage</button></div>
+  </div>
+</div>
+
+
+<div id="soonJuraUI" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="soonJuraTitle">
+  <div class="soon-tag">À SUIVRE</div>
+  <div class="soon-panel">
+    <h2 id="soonJuraTitle">Le Jura t’attend</h2>
+    <p>Les six randonneurs ont posé les voiles à Croix Mérin, au pied du Mont Poupet. Une prochaine aventure se prépare sur les plateaux du Jura.</p>
+    <div class="soon-actions"><button class="pix-btn" id="btnSoonJuraBack">Retour à la carte</button><button class="pix-btn alt" id="btnSoonJuraReplay">🪂 Revoir le vol</button></div>
+  </div>
+</div>
+
+<!-- Fiche de montagne -->
+<div id="card" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="cardTitle">
+  <div class="sheet">
+    <div class="sheet-scroll" id="cardBody"></div>
+    <div class="sheet-actions" id="cardActions"></div>
+  </div>
+</div>
+
+<!-- Inventaire -->
+<div id="inventory" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="invTitle">
+  <div class="sheet">
+    <div class="sheet-scroll" id="invBody"></div>
+    <div class="sheet-actions"><button class="pix-btn alt" id="btnInvClose">Fermer</button></div>
+  </div>
+</div>
+
+<!-- Briefing de niveau -->
+<div id="briefing" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="briefTitle">
+  <div class="sheet">
+    <div class="sheet-scroll" id="briefBody"></div>
+    <div class="sheet-actions"><button class="pix-btn" id="btnGo">C’est parti</button><button class="pix-btn alt" id="btnBriefBack">Retour</button></div>
+  </div>
+</div>
+
+<!-- Victoire -->
+<div id="victory" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="sheet win">
+    <div class="sheet-scroll" id="victoryBody"></div>
+    <div class="sheet-actions" id="victoryActions"><button class="pix-btn hidden" id="btnNextSummit">Sommet suivant</button><button class="pix-btn alt" id="btnReplay">Rejouer</button><button class="pix-btn alt" id="btnBackMap">Carte</button></div>
+  </div>
+</div>
+
+<!-- v0.6.0 : célébration du déblocage du Mode Trail -->
+<div id="trailUnlock" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="trailUnlockTitle">
+  <div class="sheet small trail-pop">
+    <div class="sheet-scroll center">
+      <div class="trail-pop-ico" aria-hidden="true">👻</div>
+      <h2 id="trailUnlockTitle">Mode Trail débloqué !</h2>
+      <p>Affronte le fantôme de ton meilleur temps sur chaque sommet.</p>
+    </div>
+    <div class="sheet-actions"><button class="pix-btn" id="btnTrailUnlockOk">C’est parti</button></div>
+  </div>
+</div>
+
+<!-- v0.7.0 : célébration du déblocage de la traileuse et du trailer -->
+<div id="charsUnlock" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="charsUnlockTitle">
+  <div class="sheet small trail-pop">
+    <div class="sheet-scroll center">
+      <div class="trail-pop-ico" aria-hidden="true">🏃</div>
+      <h2 id="charsUnlockTitle">Costumes trail débloqués !</h2>
+      <p>La traileuse et le trailer sont à toi, après le puy de Mary.</p>
+    </div>
+    <div class="sheet-actions"><button class="pix-btn" id="btnCharsUnlockOk">C’est parti</button></div>
+  </div>
+</div>
+
+<!-- v0.8.0 : célébration du déblocage des costumes basques (après le Pic d’Orhy) -->
+<div id="basqueUnlock" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="basqueUnlockTitle">
+  <div class="sheet small trail-pop">
+    <div class="sheet-scroll center">
+      <div class="trail-pop-ico" aria-hidden="true">🏔️</div>
+      <h2 id="basqueUnlockTitle">Costumes basques débloqués !</h2>
+      <p>Le randonneur et la randonneuse en tenue traditionnelle basque sont à toi, après le Pic d’Orhy.</p>
+    </div>
+    <div class="sheet-actions"><button class="pix-btn" id="btnBasqueUnlockOk">C’est parti</button></div>
+  </div>
+</div>
+
+<!-- Pause -->
+<div id="pauseMenu" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="sheet small">
+    <div class="sheet-scroll center"><h2>Pause</h2><p class="muted">Reprends quand tu es prêt.</p></div>
+    <div class="sheet-actions col">
+      <button class="pix-btn" id="btnResume">Reprendre</button>
+      <button class="pix-btn alt" id="btnInv2">Inventaire</button>
+      <button class="pix-btn alt" id="btnRestart">Recommencer</button>
+      <button class="pix-btn alt" id="btnQuit">Retour à la carte</button>
+    </div>
+  </div>
+</div>
+
+<!-- Choix du personnage -->
+<div id="charSelect" class="modal char-modal hidden" role="dialog" aria-modal="true" aria-labelledby="charTitle">
+  <div class="char-wrap">
+    <h2 id="charTitle">Choisis ton alpiniste</h2>
+    <p class="char-sub">Tu pourras en changer à tout moment (carte → 🧗 ou Réglages).</p>
+    <div class="char-cards">
+      <button class="char-card" id="cardBoy" data-char="boy" aria-pressed="false"><canvas width="240" height="300"></canvas><b>Le randonneur</b><span>Chapeau rouge, sac violet, bâtons de marche</span><i class="tick">✔</i></button>
+      <button class="char-card" id="cardGirl" data-char="girl" aria-pressed="false"><canvas width="240" height="300"></canvas><b>La randonneuse</b><span>Cheveux longs châtains, short rose, haut bleu</span><i class="tick">✔</i></button>
+      <button class="char-card" id="cardGirl2" data-char="girl2" aria-pressed="false"><canvas width="240" height="300"></canvas><b>La traileuse</b><span>Queue-de-cheval, bandeau lilas, legging noir</span><em class="lock-hint">Débloqué après le puy de Mary</em><i class="tick">✔</i></button>
+      <button class="char-card" id="cardBoy2" data-char="boy2" aria-pressed="false"><canvas width="240" height="300"></canvas><b>Le trailer</b><span>Tee-shirt et short noirs, tête nue, sac anthracite</span><em class="lock-hint">Débloqué après le puy de Mary</em><i class="tick">✔</i></button>
+      <button class="char-card" id="cardBoy3" data-char="boy3" aria-pressed="false"><canvas width="240" height="300"></canvas><b>Le randonneur basque</b><span>Txapela, chemise blanche, gerriko et foulard rouges, espadrilles, bâtons</span><em class="lock-hint">Débloqué après le Pic d’Orhy</em><i class="tick">✔</i></button>
+      <button class="char-card" id="cardGirl3" data-char="girl3" aria-pressed="false"><canvas width="240" height="300"></canvas><b>La randonneuse basque</b><span>Zapi, jupe et tablier, gerriko, espadrilles, bâtons de randonnée</span><em class="lock-hint">Débloqué après le Pic d’Orhy</em><i class="tick">✔</i></button>
+    </div>
+    <div class="char-actions"><button class="pix-btn" id="btnCharOk">Valider</button></div>
+  </div>
+</div>
+
+<!-- Réglages -->
+<div id="settings" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="sheet small">
+    <div class="sheet-scroll"><h2>Réglages</h2>
+      <label class="row"><span>Personnage</span><button class="pix-btn small alt" id="btnCharSettings">Changer</button></label>
+      <label class="row"><span>Effets sonores</span><button class="pix-btn small" id="btnSound">Activé</button></label>
+      <label class="row"><span>Musique</span><button class="pix-btn small" id="btnMusic">Activée</button></label>
+      <div class="row"><span>Volume musique</span><span class="stepper"><button class="pix-btn small alt" id="btnVolDn" aria-label="Baisser le volume de la musique">−</button><b id="volLbl">60 %</b><button class="pix-btn small alt" id="btnVolUp" aria-label="Monter le volume de la musique">+</button></span></div>
+      <div class="row"><span>Volume des effets</span><span class="stepper"><button class="pix-btn small alt" id="btnSfxDn" aria-label="Baisser le volume des effets">−</button><b id="sfxLbl">100 %</b><button class="pix-btn small alt" id="btnSfxUp" aria-label="Monter le volume des effets">+</button></span></div>
+      <label class="row"><span>Vibrations du téléphone</span><button class="pix-btn small" id="btnVib">Activées</button></label>
+      <label class="row"><span>Vibrations manette</span><button class="pix-btn small" id="btnPadRumble">Activées</button></label>
+      <label class="row"><span>Intensité manette</span><button class="pix-btn small alt" id="btnPadLevel">Moyenne</button></label>
+      <label class="row"><span>Moins d’effets<small class="sub-lbl">Réduit le flou et les particules sur les appareils modestes</small></span><button class="pix-btn small" id="btnLowFx">Désactivé</button></label>
+      <label class="row"><span>Revoir les conseils</span><button class="pix-btn small alt" id="btnHints">Réactiver</button></label>
+      <label class="row"><span>Sauvegarde<small class="sub-lbl">Exporter / importer (fichier ou code)</small></span><button class="pix-btn small alt" id="btnXfer">Ouvrir</button></label>
+      <label class="row"><span>Progression</span><button class="pix-btn small danger" id="btnReset">Effacer</button></label>
+      <p class="muted" id="settingsMsg"></p>
+      <p class="muted tiny ver-line" id="setVer"></p>
+      <p class="muted tiny">Clavier : ← → (ou Q D) pour avancer, ↑ / Espace / Z pour sauter, Échap = pause. Manette (Xbox, SCUF…) : stick / croix, A = sauter, B = retour, Start = pause, Vue = carte. Menus : croix + A / B.</p>
+    </div>
+    <div class="sheet-actions"><button class="pix-btn" id="btnCloseSettings">Fermer</button></div>
+  </div>
+</div>
+
+<!-- Sauvegarde : export / import -->
+<div id="xfer" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="xferTitle">
+  <div class="sheet small">
+    <div class="sheet-scroll"><h2 id="xferTitle">Sauvegarde</h2>
+      <p class="xfer-intro">Ta progression est enregistrée sur cet appareil. Exporte-la pour la garder en lieu sûr ou la retrouver sur un autre appareil.</p>
+      <section class="xfer-card">
+        <h3><svg class="xi" viewBox="0 0 8 8" aria-hidden="true"><path d="M3 0h2v3h2L4 6 1 3h2zM0 7h8v1H0z"/></svg>EXPORTER</h3>
+        <div class="xfer-sum" id="xferSum"></div>
+        <div class="xfer-btns"><button class="pix-btn small" id="btnXferFile">Fichier .json</button><button class="pix-btn small alt" id="btnXferCopy">Copier le code</button></div>
+        <textarea id="xferCode" class="xfer-ta" readonly rows="3" spellcheck="false" aria-label="Code de sauvegarde à copier"></textarea>
+      </section>
+      <section class="xfer-card">
+        <h3><svg class="xi" viewBox="0 0 8 8" aria-hidden="true"><path d="M3 6h2V3h2L4 0 1 3h2zM0 7h8v1H0z"/></svg>IMPORTER</h3>
+        <div class="xfer-btns"><button class="pix-btn small alt" id="btnXferPick">Choisir un fichier</button></div>
+        <input type="file" id="xferFile" accept=".json,application/json,text/plain" hidden>
+        <textarea id="xferPaste" class="xfer-ta" rows="3" spellcheck="false" placeholder="…ou colle ici un code qui commence par ASC1-" aria-label="Code de sauvegarde à importer"></textarea>
+        <div class="xfer-prev" id="xferPrev"></div>
+        <div class="xfer-btns"><button class="pix-btn small danger" id="btnXferApply" disabled>Importer</button></div>
+      </section>
+      <p class="xfer-msg" id="xferMsg" role="status" aria-live="polite"></p>
+    </div>
+    <div class="sheet-actions"><button class="pix-btn" id="btnXferClose">Retour</button></div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/info.js"></script>
+<script src="js/levels2.js"></script>
+<script src="js/levels_w2.js"></script>
+<script src="js/levels_w3.js"></script>
+<script src="js/levels_jura.js"></script>
+<script src="js/save.js"></script>
+<script src="js/files.js"></script>
+<script src="js/sfx.js"></script>
+<script src="js/input.js"></script>
+<script src="js/art.js"></script>
+<script src="js/map.js"></script>
+<script src="js/scenery.js"></script>
+<script src="js/mech.js"></script>
+<script src="js/fauna.js"></script>
+<script src="js/game.js"></script>
+<script src="js/pariou.js"></script>
+<script src="js/alpine.js"></script>
+<script src="js/alpine_themes.js"></script>
+<script src="js/basque.js"></script>
+<script src="js/basque_w3.js"></script>
+<script src="js/jura_themes.js"></script>
+<script src="js/vista_w2.js"></script>
+<script src="js/vista.js"></script>
+<script src="js/cine.js"></script>
+<script src="js/cine_w2.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/postcard.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+<script src="js/site-bridge.js"></script>
+</body>
+</html>

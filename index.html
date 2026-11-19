@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ascension — Gravis 21 sommets mythiques de France et de Suisse · v0.19.0</title>
+  <meta name="description" content="Jeu de randonnée et de trail rétro-moderne, gratuit et sans compte. 21 sommets en Auvergne, au Pays basque et dans le Jura, 63 anecdotes de terrain sourcées. Jouable dans le navigateur, en PWA hors-ligne ou via l’APK Android.">
+  <meta name="theme-color" content="#0e1233">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="./img/icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="./img/apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="canonical" href="https://blood63.github.io/ascension/">
+  <link rel="preload" href="./fonts/PressStart2P-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="./css/site.css">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Ascension — 21 sommets mythiques de France et de Suisse">
+  <meta property="og:description" content="Jeu de randonnée rétro-moderne, gratuit, sans pub et sans compte. Jouable dans le navigateur, en application hors-ligne ou via l’APK Android.">
+  <meta property="og:image" content="https://blood63.github.io/ascension/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://blood63.github.io/ascension/">
+  <meta property="og:locale" content="fr_FR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ascension — 21 sommets mythiques de France et de Suisse">
+  <meta name="twitter:description" content="Jeu de randonnée rétro-moderne, gratuit, sans pub et sans compte.">
+  <meta name="twitter:image" content="https://blood63.github.io/ascension/img/og-cover.png">
+</head>
+<body>
+  <a class="skip" href="#contenu">Aller au contenu</a>
+  <header class="nav">
+    <a class="brand" href="./index.html">
+      <span class="brand-logo">ASCENSION</span>
+      <span class="ver-pill">v0.19.0</span>
+    </a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="#massifs">Les 3 massifs</a></li>
+        <li><a href="#galerie">Galerie</a></li>
+        <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+        <li><a href="#telecharger">Télécharger</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-primary btn-sm nav-cta" href="./play/">▶ Jouer</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Ouvrir le menu"><span></span></button>
+  </header>
+
+  <section class="hero" id="contenu">
+    
+  <div class="hero-sky" aria-hidden="true">
+    <div class="stars"></div>
+    <svg class="ridge ridge-far" data-depth="0.12" viewBox="0 0 1200 180" preserveAspectRatio="none" width="1200" height="180"><path fill="currentColor" d="M0,140 C80,120 140,80 220,90 C300,100 340,60 420,70 C520,85 560,40 650,55 C760,75 820,30 930,50 C1020,64 1100,40 1200,60 L1200,180 L0,180 Z"/></svg>
+    <svg class="ridge ridge-mid" data-depth="0.22" viewBox="0 0 1200 200" preserveAspectRatio="none" width="1200" height="200"><path fill="currentColor" d="M0,130 C100,110 160,70 250,85 C340,100 400,50 500,68 C600,86 680,36 790,60 C900,84 980,40 1200,80 L1200,200 L0,200 Z"/></svg>
+    <svg class="ridge ridge-near" data-depth="0.35" viewBox="0 0 1200 160" preserveAspectRatio="none" width="1200" height="160"><path fill="currentColor" d="M0,90 C120,70 200,110 310,100 C430,88 520,130 640,110 C760,90 860,140 980,120 C1080,108 1140,130 1200,120 L1200,160 L0,160 Z"/></svg>
+  </div>
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="badge-row"><span class="badge">Gratuit · Sans pub · Sans compte · Jouable hors-ligne</span></p>
+        <h1>Gravis 21 sommets mythiques de France et de Suisse</h1>
+        <p class="sub">Un jeu de randonnée et de trail rétro-moderne : gère ton eau, affronte le vent et la roche, collectionne 63 anecdotes de terrain sourcées et défie ton fantôme en Mode Trail.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="./play/"><span class="ico">▶</span> Jouer maintenant</a>
+          <p class="rec-line" data-rec="desktop" hidden><span class="rec-badge">Recommandé sur cet appareil</span></p>
+          <p class="rec-line" data-rec="ios" hidden><span class="rec-badge">Recommandé sur cet appareil</span></p>
+          <a class="btn btn-secondary" href="./downloads/Ascension-v0.19.0.apk"><span class="ico">📱</span> Télécharger l’APK Android · 13,99 Mo · v0.19.0</a>
+          <p class="rec-line" data-rec="android" hidden><span class="rec-badge">Recommandé sur cet appareil</span></p>
+          <div class="hero-tertiary">
+            <button class="btn btn-ghost" type="button" data-install><span class="ico">📲</span> Installer en application (PWA)</button>
+            <a href="./downloads/Ascension-v0.19.0-offline.html">Fichier HTML hors-ligne (15,01 Mo)</a>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <figure class="desk-frame">
+          <img src="./img/hero-desktop.webp" width="1280" height="744" alt="Sommet du puy de Dôme dans le jeu : temple de Mercure, pylône TDF et randonneur au drapeau">
+        </figure>
+        <div class="phone-frame">
+          <span class="phone-notch" aria-hidden="true"></span>
+          <img src="./img/hero-phone.webp" width="780" height="1688" alt="Carte du Monde 1 sur téléphone, puy de Dôme et Panoramique des Dômes">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats" aria-label="Chiffres clés">
+    <div class="wrap stats-grid">
+      <div class="stat"><b>21</b><span>Sommets réels</span></div>
+      <div class="stat"><b>3</b><span>Massifs (Auvergne, Pays basque, Jura)</span></div>
+      <div class="stat"><b>13 381 m</b><span>de D+ cumulé</span></div>
+      <div class="stat"><b>63</b><span>Objets de carnet sourcés</span></div>
+      <div class="stat"><b>6</b><span>Alpinistes déblocables</span></div>
+      <div class="stat"><b>100 %</b><span>Gratuit &amp; Hors-ligne</span></div>
+    </div>
+  </section>
+
+  <section class="section paper" id="massifs">
+    <div class="wrap">
+      <p class="section-kicker">Découvrir</p>
+      <h2>Les 3 massifs</h2>
+      <p class="lead">Vingt-et-un sommets réels, aux altitudes, dénivelés et difficultés extraits des données du jeu (sources de terrain citées dans chaque fiche).</p>
+      <div data-tabs>
+        <div class="tabs" role="tablist" aria-label="Les trois massifs">
+          <button class="tab" type="button" role="tab" id="tab-w1" aria-controls="panel-w1" aria-selected="true" tabindex="0">Monde 1 · Chaîne des Puys</button><button class="tab" type="button" role="tab" id="tab-w2" aria-controls="panel-w2" aria-selected="false" tabindex="-1">Monde 2 · Pays basque</button><button class="tab" type="button" role="tab" id="tab-w3" aria-controls="panel-w3" aria-selected="false" tabindex="-1">Monde 3 · Jura</button>
+        </div>
+        
+    <div class="tab-panel" role="tabpanel" id="panel-w1" aria-labelledby="tab-w1">
+      <div class="massif">
+        <div class="massif-shots">
+          <figure class="shot">
+            <img src="img/world1-shot.webp" width="1280" height="764" alt="Carte du Monde 1 — Chaîne des Puys, avec le puy de Dôme, le Sancy et le Panoramique des Dômes" loading="eager">
+            <figcaption>Carte du Monde 1 · Chaîne des Puys</figcaption>
+          </figure>
+          <figure class="shot pc">
+            <img src="img/pc-w1.webp" width="900" height="662" alt="Carte postale officielle : Bons baisers des Volcans ! — Puy de la Vache, 1 167 m" loading="eager">
+            <figcaption>Carte postale officielle · « Bons baisers des Volcans ! »</figcaption>
+          </figure>
+        </div>
+        <div class="massif-copy">
+          <h3>Auvergne volcanique</h3>
+          <p>Cônes stromboliens et dômes de trachyte, pouzzolane rouge et noire, pelouses d’altitude. Du puy de la Vache et sa carrière de scories jusqu’au puy de Sancy, toit du Massif central (1 885 m), en passant par le puy de Dôme : temple de Mercure, pylône TDF et voie du Panoramique des Dômes. La Chaîne des Puys – faille de Limagne est inscrite au patrimoine mondial de l’UNESCO depuis 2018.</p>
+          <div class="table-wrap">
+            <table class="summits">
+              <thead><tr><th>N°</th><th>Sommet</th><th>Altitude</th><th>Dénivelé</th><th>Difficulté</th></tr></thead>
+              <tbody>
+                <tr><td class="num">01</td><td><span class="name">Puy de la Vache</span></td><td class="numv">1 167 m</td><td class="numv">+285 m</td><td>Facile</td></tr>
+<tr><td class="num">02</td><td><span class="name">Puy de Pariou</span></td><td class="numv">1 209 m</td><td class="numv">+217 m</td><td>Facile à moyenne</td></tr>
+<tr><td class="num">03</td><td><span class="name">Puy Mary</span><span class="route">Depuis le Pas de Peyrol</span></td><td class="numv">1 783 m</td><td class="numv">+195 m</td><td>Facile à moyenne</td></tr>
+<tr><td class="num">04</td><td><span class="name">Puy de Dôme</span><span class="route">Sentier des Muletiers</span></td><td class="numv">1 465 m</td><td class="numv">+365 m</td><td>Courte mais difficile</td></tr>
+<tr><td class="num">05</td><td><span class="name">Puy de Sancy</span><span class="route">Par le Val de Courre</span></td><td class="numv">1 885 m</td><td class="numv">+568 m</td><td>Moyenne</td></tr>
+<tr><td class="num">06</td><td><span class="name">Puy de Dôme</span><span class="route">Chemin des Chèvres</span></td><td class="numv">1 465 m</td><td class="numv">+417 m</td><td>Moyenne (plus douce que les Muletiers)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="panel-w2" aria-labelledby="tab-w2" hidden>
+      <div class="massif">
+        <div class="massif-shots">
+          <figure class="shot">
+            <img src="img/world2-shot.webp" width="1280" height="764" alt="Carte du Monde 2 — Pays basque, avec le train à crémaillère de La Rhune" loading="eager">
+            <figcaption>Carte du Monde 2 · Pays basque (train de La Rhune)</figcaption>
+          </figure>
+          <figure class="shot pc">
+            <img src="img/pc-w2.webp" width="900" height="662" alt="Carte postale officielle du Pays basque — La Rhune" loading="eager">
+            <figcaption>Carte postale officielle · « Bons baisers du Pays basque »</figcaption>
+          </figure>
+        </div>
+        <div class="massif-copy">
+          <h3>De l’Ursuya au Txindoki</h3>
+          <p>Du dôme herbeux de l’Ursuya (678 m) à la pyramide calcaire du Txindoki (1 342 m). Pottoks, estives de brebis latxa, vautours fauves, et le train à crémaillère de 1924 qui gravit La Rhune au-dessus de l’océan. Après le chemin des Chèvres au puy de Dôme, le voyage en train mène au Pays basque ; après le Txindoki, le parapente ouvre le Jura.</p>
+          <div class="table-wrap">
+            <table class="summits">
+              <thead><tr><th>N°</th><th>Sommet</th><th>Altitude</th><th>Dénivelé</th><th>Difficulté</th></tr></thead>
+              <tbody>
+                <tr><td class="num">07</td><td><span class="name">Ursuya</span><span class="route">Depuis le quartier Celhay</span></td><td class="numv">678 m</td><td class="numv">+394 m</td><td>Facile</td></tr>
+<tr><td class="num">08</td><td><span class="name">Atxuria</span><span class="route">Depuis les Grottes de Sare</span></td><td class="numv">758 m</td><td class="numv">+620 m</td><td>Facile à moyenne</td></tr>
+<tr><td class="num">09</td><td><span class="name">Pic d’Orhy</span><span class="route">Voie normale depuis le Port de Larrau</span></td><td class="numv">2 017 m</td><td class="numv">+433 m</td><td>Moyenne</td></tr>
+<tr><td class="num">10</td><td><span class="name">La Rhune</span><span class="route">Sentier du train depuis le col de Saint-Ignace</span></td><td class="numv">900 m</td><td class="numv">+736 m</td><td>Difficile</td></tr>
+<tr><td class="num">11</td><td><span class="name">Artzamendi</span><span class="route">Voie longue depuis Itxassou / le Pas de Roland</span></td><td class="numv">926 m</td><td class="numv">+850 m</td><td>Difficile (voie longue)</td></tr>
+<tr><td class="num">12</td><td><span class="name">Aizkorri</span><span class="route">Voie classique depuis le sanctuaire d’Arantzazu, par Urbía</span></td><td class="numv">1 528 m</td><td class="numv">+938 m</td><td>Difficile</td></tr>
+<tr><td class="num">13</td><td><span class="name">Txindoki</span><span class="route">Voie normale depuis Larraitz, par le col d’Egurral</span></td><td class="numv">1 342 m</td><td class="numv">+940 m</td><td>Très difficile</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="panel-w3" aria-labelledby="tab-w3" hidden>
+      <div class="massif">
+        <div class="massif-shots">
+          <figure class="shot">
+            <img src="img/world3-shot.webp" width="1280" height="764" alt="Sommet du Crêt de la Neige, mer de nuages et Alpes au loin" loading="eager">
+            <figcaption>Crêt de la Neige · mer de nuages et Alpes</figcaption>
+          </figure>
+          <figure class="shot pc">
+            <img src="img/pc-w3.webp" width="900" height="662" alt="Carte postale officielle : Bons baisers du Jura ! — Crêt de la Neige, 1 720 m" loading="eager">
+            <figcaption>Carte postale officielle · « Bons baisers du Jura ! »</figcaption>
+          </figure>
+        </div>
+        <div class="massif-copy">
+          <h3>Du Poupet au Crêt de la Neige</h3>
+          <p>Du Mont Poupet, au-dessus de Salins-les-Bains, jusqu’au Crêt de la Neige (1 720 m), toit usuel du massif. Calcaire, lapiaz et pins à crochets, cirque du Creux du Van, croix haubanée du Grand Colombier, radôme de La Dôle, orages du Reculet, mer de nuages et vue lointaine vers les Alpes.</p>
+          <div class="table-wrap">
+            <table class="summits">
+              <thead><tr><th>N°</th><th>Sommet</th><th>Altitude</th><th>Dénivelé</th><th>Difficulté</th></tr></thead>
+              <tbody>
+                <tr><td class="num">14</td><td><span class="name">Mont Poupet</span><span class="route">Boucle depuis la Place des Vieilles-Salines, Salins-les-Bains</span></td><td class="numv">851 m</td><td class="numv">+676 m</td><td>Difficile à très difficile</td></tr>
+<tr><td class="num">15</td><td><span class="name">Mont d’Or</span><span class="route">Boucle officielle du PNR du Haut-Jura, depuis Les Granges Raguin (Rochejean)</span></td><td class="numv">1 463 m</td><td class="numv">+478 m</td><td>Moyenne (boucle officielle 3 h 45)</td></tr>
+<tr><td class="num">16</td><td><span class="name">Creux du Van</span><span class="route">Sentier des 14 contours, de Noiraigue au Soliat</span></td><td class="numv">1 464 m</td><td class="numv">+745 m</td><td>Sportive / assez exigeant (J3L)</td></tr>
+<tr><td class="num">17</td><td><span class="name">Grand Colombier</span><span class="route">Aller-retour officiel depuis Culoz, par le GR9 et le belvédère du Fenestrez</span></td><td class="numv">1 534 m</td><td class="numv">+1 300 m</td><td>Très exigeante (fiche officielle, 8 h)</td></tr>
+<tr><td class="num">18</td><td><span class="name">La Dôle</span><span class="route">Boucle depuis le parking des Dappes (balisage suisse, losanges jaunes)</span></td><td class="numv">1 677 m</td><td class="numv">+589 m</td><td>Difficile / moyen selon les topos</td></tr>
+<tr><td class="num">19</td><td><span class="name">Colomby de Gex</span><span class="route">Depuis le col de la Faucille, par les crêtes</span></td><td class="numv">1 688 m</td><td class="numv">+690 m</td><td>Moyenne à difficile (longueur de crête)</td></tr>
+<tr><td class="num">20</td><td><span class="name">Le Reculet</span><span class="route">Crête de la Haute Chaîne (hauts sommets), souvent enchaîné depuis Lélex</span></td><td class="numv">1 718 m</td><td class="numv">+1 095 m</td><td>Très difficile (crête des hauts sommets)</td></tr>
+<tr><td class="num">21</td><td><span class="name">Crêt de la Neige</span><span class="route">Depuis Lélex, ou crête des hauts sommets (même famille que le Reculet)</span></td><td class="numv">1 720 m</td><td class="numv">+850 m</td><td>Très difficile (toit du massif / crête)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="galerie">
+    <div class="wrap">
+      <p class="section-kicker">Regarder</p>
+      <h2>Galerie</h2>
+      <p class="lead">Captures réelles de la version 0.19.0 — cartes, sommets et écran Carrière &amp; Cartes.</p>
+      <div class="gallery" data-gallery>
+        <button type="button" data-full="img/gal-map.webp" data-caption="Carte du monde · Chaîne des Puys"><img src="img/gal-map.webp" width="1280" height="744" alt="Carte du Monde 1 — Chaîne des Puys" loading="eager"><span class="gallery-cap">Carte du monde · Chaîne des Puys</span></button><button type="button" data-full="img/gal-vache.webp" data-caption="Puy de la Vache · carrière"><img src="img/gal-vache.webp" width="1280" height="744" alt="Départ au puy de la Vache, carrière en rouge et noir" loading="eager"><span class="gallery-cap">Puy de la Vache · carrière</span></button><button type="button" data-full="img/gal-sancy.webp" data-caption="Puy de Sancy · neige et téléphérique"><img src="img/gal-sancy.webp" width="1280" height="744" alt="Puy de Sancy sous la neige, téléphérique en arrière-plan" loading="eager"><span class="gallery-cap">Puy de Sancy · neige et téléphérique</span></button><button type="button" data-full="img/gal-dome.webp" data-caption="Puy de Dôme · Temple de Mercure et antenne TDF"><img src="img/gal-dome.webp" width="1280" height="744" alt="Sommet du puy de Dôme : temple de Mercure et pylône TDF" loading="eager"><span class="gallery-cap">Puy de Dôme · Temple de Mercure et antenne TDF</span></button><button type="button" data-full="img/gal-rhune.webp" data-caption="La Rhune · sommet au-dessus de l’océan"><img src="img/gal-rhune.webp" width="1280" height="744" alt="Sommet de La Rhune, face à l’océan" loading="eager"><span class="gallery-cap">La Rhune · sommet au-dessus de l’océan</span></button><button type="button" data-full="img/gal-van.webp" data-caption="Creux du Van"><img src="img/gal-van.webp" width="1280" height="744" alt="Creux du Van, cirque et croix du Soliat" loading="eager"><span class="gallery-cap">Creux du Van</span></button><button type="button" data-full="img/gal-colombier.webp" data-caption="Grand Colombier · croix haubanée"><img src="img/gal-colombier.webp" width="1280" height="744" alt="Grand Colombier, croix haubanée et vue vers les Alpes" loading="eager"><span class="gallery-cap">Grand Colombier · croix haubanée</span></button><button type="button" data-full="img/gal-dole.webp" data-caption="La Dôle · radôme"><img src="img/gal-dole.webp" width="1280" height="744" alt="La Dôle, radôme et Alpes au loin" loading="eager"><span class="gallery-cap">La Dôle · radôme</span></button><button type="button" data-full="img/gal-reculet.webp" data-caption="Le Reculet · orage"><img src="img/gal-reculet.webp" width="1280" height="744" alt="Le Reculet sous l’orage, grande croix de 1892" loading="eager"><span class="gallery-cap">Le Reculet · orage</span></button><button type="button" data-full="img/gal-neige.webp" data-caption="Crêt de la Neige · mer de nuages"><img src="img/gal-neige.webp" width="1280" height="744" alt="Crêt de la Neige, mer de nuages et Mont-Blanc au loin" loading="eager"><span class="gallery-cap">Crêt de la Neige · mer de nuages</span></button><button type="button" data-full="img/gal-career.webp" data-caption="Carrière &amp; Cartes"><img src="img/gal-career.webp" width="1280" height="744" alt="Écran Carrière &amp; Cartes : 21 sommets, 63 étoiles, 13 381 m de D+" loading="eager"><span class="gallery-cap">Carrière &amp; Cartes</span></button>
+      </div>
+
+      <h2 style="margin-top:56px">Les 6 alpinistes</h2>
+      <p class="lead">Deux costumes dès le départ, la traileuse et le trailer après le puy de Mary, les tenues basques après le Pic d’Orhy.</p>
+      <div class="chars">
+        <article class="char">
+      <img src="img/char-boy.webp" width="280" height="224" alt="Le randonneur, chapeau rouge, sac violet, bâtons de marche" loading="eager">
+      <h3>Le randonneur</h3>
+      <p>Chapeau rouge, sac violet, bâtons de marche</p>
+      <span class="tag tag-free">Dès le départ</span>
+    </article><article class="char">
+      <img src="img/char-girl.webp" width="280" height="224" alt="La randonneuse, cheveux longs châtains, short rose, haut bleu" loading="eager">
+      <h3>La randonneuse</h3>
+      <p>Cheveux longs châtains, short rose, haut bleu</p>
+      <span class="tag tag-free">Dès le départ</span>
+    </article><article class="char">
+      <img src="img/char-trail-girl.webp" width="280" height="224" alt="La traileuse, queue-de-cheval, bandeau lilas, legging noir" loading="eager">
+      <h3>La traileuse</h3>
+      <p>Queue-de-cheval, bandeau lilas, legging noir</p>
+      <span class="tag tag-lock">Après le puy de Mary</span>
+    </article><article class="char">
+      <img src="img/char-trail-boy.webp" width="280" height="224" alt="Le trailer, tee-shirt et short noirs, sac anthracite" loading="eager">
+      <h3>Le trailer</h3>
+      <p>Tee-shirt et short noirs, tête nue, sac anthracite</p>
+      <span class="tag tag-lock">Après le puy de Mary</span>
+    </article><article class="char">
+      <img src="img/char-basque-boy.webp" width="280" height="224" alt="Le randonneur basque en txapela, chemise blanche et gerriko rouge" loading="eager">
+      <h3>Le randonneur basque</h3>
+      <p>Txapela, chemise blanche, gerriko et foulard rouges</p>
+      <span class="tag tag-lock">Après le Pic d’Orhy</span>
+    </article><article class="char">
+      <img src="img/char-basque-girl.webp" width="280" height="224" alt="La randonneuse basque en zapi, jupe, tablier et espadrilles" loading="eager">
+      <h3>La randonneuse basque</h3>
+      <p>Zapi, jupe et tablier, gerriko, espadrilles</p>
+      <span class="tag tag-lock">Après le Pic d’Orhy</span>
+    </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="fonctionnalites">
+    <div class="wrap">
+      <p class="section-kicker">Jouer</p>
+      <h2>Fonctionnalités</h2>
+      <div class="features">
+        <article class="feat">
+          <h3>Physique calibrée 60 à 300 Hz</h3>
+          <p>Les sensations de saut restent identiques sur mobile 120 Hz, PC 300 Hz et écrans standard (29,05 px / 7,20 px à 60 images par seconde).</p>
+        </article>
+        <article class="feat">
+          <h3>Musique &amp; sons 100 % synthétisés</h3>
+          <p>Trois thèmes originaux générés en temps réel (Web Audio API), sons différenciés par sol (pouzzolane, neige, bois, roche), vent d’altitude, oiseaux et sonnailles.</p>
+        </article>
+        <article class="feat">
+          <h3>Mode Trail &amp; Fantôme</h3>
+          <p>Affronte ton propre fantôme, chronomètre et écart en direct, pour battre tes records sur le même sentier.</p>
+        </article>
+        <article class="feat">
+          <h3>Carnet de terrain &amp; cartes postales</h3>
+          <p>63 objets géologiques, faunistiques et patrimoniaux sourcés, profil altimétrique, et cartes postales exportables en image.</p>
+        </article>
+        <article class="feat">
+          <h3>Clavier, tactile &amp; manettes</h3>
+          <p>Jouable au pouce, au clavier (AZERTY / QWERTY) et aux manettes Bluetooth ou USB (Xbox, SCUF…), avec vibrations et un mode « Moins d’effets ».</p>
+        </article>
+        <article class="feat">
+          <h3>Sauvegarde portable sans compte</h3>
+          <p>Ta progression reste sur l’appareil. Transfère-la entre PC et smartphone via un fichier .json ou un code qui commence par ASC1-.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section paper" id="telecharger">
+    <div class="wrap">
+      <p class="section-kicker">Emporter</p>
+      <h2>Jouer &amp; télécharger</h2>
+      <p class="lead">Trois façons de jouer, toutes gratuites, sans compte et sans boutique d’applications.</p>
+      <div class="dl-grid">
+        <article class="dl-card">
+          <h3>Navigateur &amp; application web (PWA)</h3>
+          <p>PC · Android · iPhone. Lance le jeu tout de suite, puis installe-le sur l’écran d’accueil pour y revenir hors-ligne.</p>
+          <a class="btn btn-primary" href="./play/"><span class="ico">▶</span> Lancer le jeu</a>
+          <button class="btn btn-secondary" type="button" data-install>Installer l’appli (PWA)</button>
+          <details class="guide" id="installGuide">
+            <summary>Comment installer sur iPhone (Safari) ou Android (Chrome) ?</summary>
+            <ol>
+              <li>Ouvre ce site dans Safari (iPhone / iPad) ou Chrome (Android).</li>
+              <li>iPhone : bouton Partager, puis « Sur l’écran d’accueil ». Android : menu, puis « Installer l’application » ou « Ajouter à l’écran d’accueil ».</li>
+              <li>Confirme. L’icône Ascension apparaît parmi tes applications ; le jeu se lance même sans réseau après une première visite.</li>
+            </ol>
+          </details>
+        </article>
+
+        <article class="dl-card">
+          <h3>Application Android directe (.apk)</h3>
+          <p>Installe le jeu comme une application native, sans Play Store.</p>
+          <a class="btn btn-primary" href="./downloads/Ascension-v0.19.0.apk"><span class="ico">⬇</span> Télécharger l’APK</a>
+          <p class="dl-meta">13 986 304 octets — <strong>13,99 Mo</strong> · version <strong>0.19.0</strong> · versionCode <strong>92</strong> · Android <strong>5.1 ou plus</strong> (API 22)</p>
+          <p class="dl-meta">Empreinte SHA-256, pour vérifier le fichier :</p>
+          <p class="sha" id="shaApk">69351eb9a111807472f9907d3a3f575fe84867657952305c6fbaa3964238d088</p>
+          <p><button class="btn btn-ghost btn-sm" type="button" data-copy="69351eb9a111807472f9907d3a3f575fe84867657952305c6fbaa3964238d088">Copier l’empreinte</button>
+             <a href="./downloads/SHA256SUMS.txt">SHA256SUMS.txt</a></p>
+          <div class="android-note">
+            <strong>Guide d’installation Android (30 secondes).</strong>
+            Comme le jeu est distribué gratuitement hors Play Store, Android affiche souvent « Fichier potentiellement dangereux » ou demande d’autoriser les « sources inconnues ». Ce n’est pas une accusation contre le fichier : c’est le message par défaut pour toute application installée à la main.
+          </div>
+          <details class="guide">
+            <summary>Les 3 étapes pour installer sereinement</summary>
+            <ol>
+              <li>Télécharge <code>Ascension-v0.19.0.apk</code> depuis cette page, puis ouvre le fichier depuis la notification ou Téléchargements.</li>
+              <li>Si Android le demande, autorise l’installation depuis ce navigateur (Paramètres → « Autoriser cette source »).</li>
+              <li>En cas d’avertissement « fichier potentiellement dangereux », choisis d’installer quand même — tu peux auparavant comparer l’empreinte SHA-256 du fichier à celle affichée ici.</li>
+            </ol>
+          </details>
+        </article>
+
+        <article class="dl-card">
+          <h3>Version autonome hors-ligne (.html)</h3>
+          <p>Un seul fichier à enregistrer sur l’ordinateur : un double-clic lance le jeu, même sans connexion.</p>
+          <a class="btn btn-primary" href="./downloads/Ascension-v0.19.0-offline.html"><span class="ico">⬇</span> Télécharger le .html</a>
+          <p class="dl-meta">15 012 397 octets — <strong>15,01 Mo</strong> · bundle v0.19.0</p>
+          <p class="dl-meta">Empreinte SHA-256 :</p>
+          <p class="sha">1223fe094e692a8af7a0d774b8e145f01be77775d84bf9968834d1328924bbc8</p>
+          <p><button class="btn btn-ghost btn-sm" type="button" data-copy="1223fe094e692a8af7a0d774b8e145f01be77775d84bf9968834d1328924bbc8">Copier l’empreinte</button></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="wrap">
+      <p class="section-kicker">Comprendre</p>
+      <h2>FAQ</h2>
+      <div class="faq">
+        <details>
+          <summary>Le jeu est-il vraiment gratuit et sans pub ?</summary>
+          <p>Oui. Ascension est gratuit, sans publicité, sans compte et sans achat intégré. Aucune donnée personnelle n’est collectée, transmise ou vendue.</p>
+        </details>
+        <details>
+          <summary>Comment transférer ma sauvegarde entre mon téléphone et mon PC ?</summary>
+          <p>Dans les Réglages du jeu, ouvre « Sauvegarde », puis exporte un fichier <code>.json</code> ou copie un code qui commence par <code>ASC1-</code>. Sur l’autre appareil, importe ce fichier ou colle le code. La progression ne quitte l’appareil que si tu l’exportes toi-même.</p>
+        </details>
+        <details>
+          <summary>Puis-je jouer sur iPhone / iPad ?</summary>
+          <p>Oui, dans Safari (et la plupart des navigateurs iOS). Tu peux aussi ajouter le site à l’écran d’accueil : le jeu s’ouvre comme une application et reste jouable hors-ligne après une première visite.</p>
+        </details>
+        <details>
+          <summary>Pourquoi Android affiche un avertissement lors de l’installation de l’APK ?</summary>
+          <p>Android prévient par défaut dès qu’une application n’est pas installée depuis le Play Store. Le jeu est distribué ici, gratuitement, avec son empreinte SHA-256. Le message « fichier potentiellement dangereux » ou « sources inconnues » est donc attendu : ce n’est pas une alerte ciblée contre Ascension.</p>
+        </details>
+        <details>
+          <summary>Puis-je jouer à la manette ?</summary>
+          <p>Oui. Les manettes Bluetooth ou USB (Xbox, SCUF et compatibles) sont reconnues, avec vibrations réglables. Le jeu se joue aussi au clavier (AZERTY ou QWERTY) et au pouce sur écran tactile.</p>
+        </details>
+        <details>
+          <summary>Le jeu fonctionne-t-il en mode avion / en refuge sans réseau ?</summary>
+          <p>Oui. L’APK et le fichier HTML unique fonctionnent entièrement hors-ligne. La version navigateur / PWA, une fois visitée ou installée, reste jouable sans réseau grâce au cache (le premier chargement demande encore une connexion).</p>
+        </details>
+      </div>
+
+      <aside class="notes">
+        <h3>Note de version v0.19.0</h3>
+        <ul>
+          <li>21 sommets jouables, 3 massifs, 13 381 m de D+ cumulé et 63 objets de carnet sourcés.</li>
+          <li>Cartes postales propres à chaque massif, écran Carrière &amp; Cartes, et victoire à trois actions (Sommet suivant, Rejouer, Carte).</li>
+          <li>Finitions de sommet : temple de Mercure et pylône TDF au puy de Dôme, jalon IGN et pins au Crêt de la Neige, radôme de La Dôle, croix du Reculet et du Grand Colombier.</li>
+          <li>Interface soignée (indications et toasts qui ne se chevauchent plus), physique identique de 60 à 300 Hz, six alpinistes, Mode Trail, sauvegarde locale portable.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p class="legal">Ascension — Jeu créé par Émilien Lardeux · v0.19.0</p>
+      <p>
+        <a href="./privacy.html">Confidentialité &amp; mentions</a>
+        <a href="./play/">Jouer</a>
+        <a href="./downloads/SHA256SUMS.txt">SHA256SUMS.txt</a>
+      </p>
+    </div>
+  </footer>
+
+  <div id="lightbox" class="lb" hidden role="dialog" aria-modal="true" aria-label="Aperçu de la galerie">
+    <button class="lb-close" type="button" id="lbClose" aria-label="Fermer">×</button>
+    <button class="lb-prev" type="button" id="lbPrev" aria-label="Image précédente">‹</button>
+    <img id="lbImg" src="./img/gal-map.webp" width="1280" height="744" alt="">
+    <button class="lb-next" type="button" id="lbNext" aria-label="Image suivante">›</button>
+    <p class="lb-cap" id="lbCap"></p>
+  </div>
+
+  <script src="./js/site.js"></script>
+</body>
+</html>

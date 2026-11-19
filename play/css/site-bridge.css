@@ -1,0 +1,14 @@
+/* Pont discret vers le site officiel — n’altère pas le jeu. */
+.site-back{
+  display:inline-flex;align-items:center;justify-content:center;
+  margin:0 6px 0 8px;padding:6px 10px;border-radius:8px;
+  background:rgba(14,18,51,.72);color:#f4efe2;text-decoration:none;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:.02em;line-height:1;
+  border:1px solid rgba(244,239,226,.28);white-space:nowrap;flex:0 0 auto;
+  z-index:5;
+}
+.site-back:hover,.site-back:focus{background:rgba(245,143,53,.9);color:#0e1233;border-color:#f58f35;outline:none;}
+@media (max-width:420px){
+  .site-back{padding:6px 8px;font-size:10px;margin:0 4px 0 4px;}
+}

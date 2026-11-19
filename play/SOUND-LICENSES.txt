@@ -1,0 +1,19 @@
+Ascension — sources et licences des sons (v0.12.0)
+====================================================
+
+Tous les sons du jeu (effets, ambiances, musiques) sont synthétisés en temps
+réel par le moteur Web Audio (fichier js/sfx.js). Aucun fichier audio n’est
+embarquée, aucune sample tierce n’est utilisée.
+
+- Effets : saut, chute, gourde, cœur perdu, sommet, pas selon le terrain, etc.
+- Ambiances par massif : vent d’altitude, oiseaux, grillons, sonnailles /
+  cloches de pâture, cris de vautours, hennissements de pottoks (Pays basque).
+- Musique : thème discret « montagne rétro » (monde 1, Chaîne des Puys) et
+  thème basque léger (monde 2, accords G–Em–C–D).
+
+Ces sons sont des créations originales du jeu, générées procéduralement.
+Pas de licence tierce à créditer. Le mode muet (Réglages → Effets sonores)
+coupe l’ensemble (musique, effets et ambiances).
+
+Icône et visuels : illustrations vectorielles originales du jeu.
+Police Press Start 2P : SIL Open Font License 1.1 (assets/fonts/OFL.txt).
