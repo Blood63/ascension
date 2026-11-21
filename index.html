@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ascension — Gravis 21 sommets mythiques de France et de Suisse · v0.19.3</title>
+  <title>Ascension</title>
   <meta name="description" content="Jeu de randonnée et de trail rétro-moderne, gratuit et sans compte. 21 sommets en Auvergne, au Pays basque et dans le Jura, 63 anecdotes de terrain sourcées. Jouable dans le navigateur, en PWA hors-ligne ou via l’APK Android.">
   <meta name="theme-color" content="#0e1233">
   <meta name="color-scheme" content="dark">
@@ -14,7 +14,8 @@
   <link rel="preload" href="./fonts/PressStart2P-Regular.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="./css/site.css">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Ascension — 21 sommets mythiques de France et de Suisse">
+  <meta property="og:title" content="Ascension">
+  <meta property="og:site_name" content="Ascension">
   <meta property="og:description" content="Jeu de randonnée rétro-moderne, gratuit, sans pub et sans compte. Jouable dans le navigateur, en application hors-ligne ou via l’APK Android.">
   <meta property="og:image" content="https://blood63.github.io/ascension/img/og-cover.png">
   <meta property="og:image:width" content="1200">
@@ -22,7 +23,7 @@
   <meta property="og:url" content="https://blood63.github.io/ascension/">
   <meta property="og:locale" content="fr_FR">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Ascension — 21 sommets mythiques de France et de Suisse">
+  <meta name="twitter:title" content="Ascension">
   <meta name="twitter:description" content="Jeu de randonnée rétro-moderne, gratuit, sans pub et sans compte.">
   <meta name="twitter:image" content="https://blood63.github.io/ascension/img/og-cover.png">
 </head>
@@ -57,17 +58,20 @@
     <div class="wrap">
       <div class="hero-copy">
         <p class="badge-row"><span class="badge">Gratuit · Sans pub · Sans compte · Jouable hors-ligne</span></p>
-        <h1>Gravis 21 sommets mythiques de France et de Suisse</h1>
+        <h1>Ascension</h1>
+        <p class="hero-tagline">Gravis 21 sommets mythiques de France et de Suisse</p>
         <p class="sub">Un jeu de randonnée et de trail rétro-moderne : gère ton eau, affronte le vent et la roche, collectionne 63 anecdotes de terrain sourcées et défie ton fantôme en Mode Trail.</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="./play/"><span class="ico">▶</span> Jouer maintenant</a>
+          <a class="btn btn-primary btn-cta" href="./downloads/Ascension-v0.19.3.apk"><span class="ico">⬇</span> Télécharger pour Android</a>
+          <p class="file-facts file-facts-inline"><span>Version 0.19.3</span><span>13,99 Mo</span><span>21 novembre 2026</span></p>
+          <p class="rec-line" data-rec="android" hidden><span class="rec-badge">Recommandé sur cet appareil</span></p>
+          <a class="btn btn-secondary btn-cta" href="./play/"><span class="ico">▶</span> Jouer dans le navigateur</a>
           <p class="rec-line" data-rec="desktop" hidden><span class="rec-badge">Recommandé sur cet appareil</span></p>
           <p class="rec-line" data-rec="ios" hidden><span class="rec-badge">Recommandé sur cet appareil</span></p>
-          <a class="btn btn-secondary" href="./downloads/Ascension-v0.19.3.apk"><span class="ico">📱</span> Télécharger l’APK Android · 13,99 Mo · v0.19.3</a>
-          <p class="rec-line" data-rec="android" hidden><span class="rec-badge">Recommandé sur cet appareil</span></p>
+          <a class="btn btn-ghost btn-cta" href="./downloads/Ascension-v0.19.3-offline.html">Version HTML hors ligne</a>
+          <p class="file-facts file-facts-inline"><span>Version 0.19.3</span><span>15,03 Mo</span><span>21 novembre 2026</span></p>
           <div class="hero-tertiary">
-            <button class="btn btn-ghost" type="button" data-install><span class="ico">📲</span> Installer en application (PWA)</button>
-            <a href="./downloads/Ascension-v0.19.3-offline.html">Fichier HTML hors-ligne (15,03 Mo)</a>
+            <button class="btn btn-ghost" type="button" data-install>Installer en application (PWA)</button>
           </div>
         </div>
       </div>
@@ -287,55 +291,68 @@
   <section class="section paper" id="telecharger">
     <div class="wrap">
       <p class="section-kicker">Emporter</p>
-      <h2>Jouer &amp; télécharger</h2>
-      <p class="lead">Trois façons de jouer, toutes gratuites, sans compte et sans boutique d’applications.</p>
+      <h2>Télécharger</h2>
+      <p class="lead">Deux fichiers à emporter, plus le jeu dans le navigateur. Gratuit, sans compte et sans boutique d’applications.</p>
       <div class="dl-grid">
         <article class="dl-card">
-          <h3>Navigateur &amp; application web (PWA)</h3>
-          <p>PC · Android · iPhone. Lance le jeu tout de suite, puis installe-le sur l’écran d’accueil pour y revenir hors-ligne.</p>
-          <a class="btn btn-primary" href="./play/"><span class="ico">▶</span> Lancer le jeu</a>
-          <button class="btn btn-secondary" type="button" data-install>Installer l’appli (PWA)</button>
+          <h3>Pour Android</h3>
+          <p>Installe le jeu comme une application native, sans Play Store. Android 5.1 ou plus.</p>
+          <a class="btn btn-primary btn-cta" href="./downloads/Ascension-v0.19.3.apk"><span class="ico">⬇</span> Télécharger pour Android</a>
+          <ul class="file-facts">
+            <li><span>Version</span> 0.19.3</li>
+            <li><span>Taille</span> 13,99 Mo</li>
+            <li><span>Date</span> 21 novembre 2026</li>
+          </ul>
+          <p class="file-name">Fichier : <code>Ascension-v0.19.3.apk</code></p>
+          <div class="install-box">
+            <p class="install-box-title">Installer l’APK en 3 étapes</p>
+            <ol>
+              <li>Autorise les sources inconnues pour ce navigateur (Paramètres → Autoriser cette source).</li>
+              <li>Ouvre le fichier depuis la notification ou le dossier Téléchargements.</li>
+              <li>Installe. Le message « fichier potentiellement dangereux » est habituel hors Play Store : tu peux comparer l’empreinte ci-dessous, puis installer.</li>
+            </ol>
+          </div>
+          <details class="sha-details">
+            <summary>Empreinte SHA-256</summary>
+            <p class="sha-meta">13 990 722 octets</p>
+            <p class="sha" id="shaApk">e8496b6dd74fcc0cc196bee7f5013f2027d1b6a54adc33ccd0ec9014f59deacd</p>
+            <p class="sha-actions"><button class="btn btn-ghost" type="button" data-copy="e8496b6dd74fcc0cc196bee7f5013f2027d1b6a54adc33ccd0ec9014f59deacd">Copier l’empreinte</button>
+               <a href="./downloads/SHA256SUMS.txt">SHA256SUMS.txt</a></p>
+          </details>
+        </article>
+
+        <article class="dl-card">
+          <h3>Version HTML hors ligne</h3>
+          <p>Un seul fichier à enregistrer sur l’ordinateur : un double-clic lance le jeu, même sans connexion.</p>
+          <a class="btn btn-secondary btn-cta" href="./downloads/Ascension-v0.19.3-offline.html"><span class="ico">⬇</span> Version HTML hors ligne</a>
+          <ul class="file-facts">
+            <li><span>Version</span> 0.19.3</li>
+            <li><span>Taille</span> 15,03 Mo</li>
+            <li><span>Date</span> 21 novembre 2026</li>
+          </ul>
+          <p class="file-name">Fichier : <code>Ascension-v0.19.3-offline.html</code></p>
+          <details class="sha-details">
+            <summary>Empreinte SHA-256</summary>
+            <p class="sha-meta">15 032 113 octets</p>
+            <p class="sha" id="shaHtml">8c9a94a21b51a12df8eb7fca7359d0b22229995a11ff6050707485837eec7de4</p>
+            <p class="sha-actions"><button class="btn btn-ghost" type="button" data-copy="8c9a94a21b51a12df8eb7fca7359d0b22229995a11ff6050707485837eec7de4">Copier l’empreinte</button>
+               <a href="./downloads/SHA256SUMS.txt">SHA256SUMS.txt</a></p>
+          </details>
+        </article>
+
+        <article class="dl-card">
+          <h3>Dans le navigateur</h3>
+          <p>PC, Android et iPhone. Lance le jeu tout de suite, puis installe-le sur l’écran d’accueil pour y revenir hors ligne.</p>
+          <a class="btn btn-secondary btn-cta" href="./play/"><span class="ico">▶</span> Jouer dans le navigateur</a>
+          <button class="btn btn-ghost btn-cta" type="button" data-install>Installer en application (PWA)</button>
           <details class="guide" id="installGuide">
-            <summary>Comment installer sur iPhone (Safari) ou Android (Chrome) ?</summary>
+            <summary>Comment installer sur iPhone ou Android ?</summary>
             <ol>
               <li>Ouvre ce site dans Safari (iPhone / iPad) ou Chrome (Android).</li>
               <li>iPhone : bouton Partager, puis « Sur l’écran d’accueil ». Android : menu, puis « Installer l’application » ou « Ajouter à l’écran d’accueil ».</li>
-              <li>Confirme. L’icône Ascension apparaît parmi tes applications ; le jeu se lance même sans réseau après une première visite.</li>
+              <li>Confirme. L’icône d’Ascension apparaît parmi tes applications ; le jeu se lance même sans réseau après une première visite.</li>
             </ol>
           </details>
-        </article>
-
-        <article class="dl-card">
-          <h3>Application Android directe (.apk)</h3>
-          <p>Installe le jeu comme une application native, sans Play Store.</p>
-          <a class="btn btn-primary" href="./downloads/Ascension-v0.19.3.apk"><span class="ico">⬇</span> Télécharger l’APK</a>
-          <p class="dl-meta">13 990 722 octets — <strong>13,99 Mo</strong> · version <strong>0.19.3</strong> · versionCode <strong>95</strong> · Android <strong>5.1 ou plus</strong> (API 22)</p>
-          <p class="dl-meta">Empreinte SHA-256, pour vérifier le fichier :</p>
-          <p class="sha" id="shaApk">e8496b6dd74fcc0cc196bee7f5013f2027d1b6a54adc33ccd0ec9014f59deacd</p>
-          <p><button class="btn btn-ghost btn-sm" type="button" data-copy="e8496b6dd74fcc0cc196bee7f5013f2027d1b6a54adc33ccd0ec9014f59deacd">Copier l’empreinte</button>
-             <a href="./downloads/SHA256SUMS.txt">SHA256SUMS.txt</a></p>
-          <div class="android-note">
-            <strong>Guide d’installation Android (30 secondes).</strong>
-            Comme le jeu est distribué gratuitement hors Play Store, Android affiche souvent « Fichier potentiellement dangereux » ou demande d’autoriser les « sources inconnues ». Ce n’est pas une accusation contre le fichier : c’est le message par défaut pour toute application installée à la main.
-          </div>
-          <details class="guide">
-            <summary>Les 3 étapes pour installer sereinement</summary>
-            <ol>
-              <li>Télécharge <code>Ascension-v0.19.3.apk</code> depuis cette page, puis ouvre le fichier depuis la notification ou Téléchargements.</li>
-              <li>Si Android le demande, autorise l’installation depuis ce navigateur (Paramètres → « Autoriser cette source »).</li>
-              <li>En cas d’avertissement « fichier potentiellement dangereux », choisis d’installer quand même — tu peux auparavant comparer l’empreinte SHA-256 du fichier à celle affichée ici.</li>
-            </ol>
-          </details>
-        </article>
-
-        <article class="dl-card">
-          <h3>Version autonome hors-ligne (.html)</h3>
-          <p>Un seul fichier à enregistrer sur l’ordinateur : un double-clic lance le jeu, même sans connexion.</p>
-          <a class="btn btn-primary" href="./downloads/Ascension-v0.19.3-offline.html"><span class="ico">⬇</span> Télécharger le .html</a>
-          <p class="dl-meta">15 032 113 octets — <strong>15,03 Mo</strong> · bundle v0.19.3</p>
-          <p class="dl-meta">Empreinte SHA-256 :</p>
-          <p class="sha">8c9a94a21b51a12df8eb7fca7359d0b22229995a11ff6050707485837eec7de4</p>
-          <p><button class="btn btn-ghost btn-sm" type="button" data-copy="8c9a94a21b51a12df8eb7fca7359d0b22229995a11ff6050707485837eec7de4">Copier l’empreinte</button></p>
         </article>
       </div>
     </div>
@@ -400,7 +417,7 @@
 
   <footer class="footer">
     <div class="wrap">
-      <p class="legal">Ascension — Jeu créé par Émilien Lardeux · v0.19.3</p>
+      <p class="legal"><span class="legal-name">Ascension</span> <span class="legal-meta">Créé par Émilien Lardeux · v0.19.3</span></p>
       <p>
         <a href="./privacy.html">Confidentialité &amp; mentions</a>
         <a href="./play/">Jouer</a>
