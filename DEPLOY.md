@@ -7,7 +7,7 @@ Aucun compte n’est créé ici : tu déploies toi-même.
 ## Avant d’envoyer les fichiers
 
 1. Les balises Open Graph / Twitter (`og:url`, `og:image`, `twitter:image`) et le lien canonique pointent vers `https://blood63.github.io/ascension/`. Si le site change d’adresse, mets-les à jour (ces balises ont besoin d’une adresse absolue).
-2. Vérifie une dernière fois `downloads/SHA256SUMS.txt` : il doit correspondre aux fichiers `Ascension-v0.19.0.apk` et `Ascension-v0.19.0-offline.html` livrés.
+2. Vérifie une dernière fois `downloads/SHA256SUMS.txt` : il doit correspondre aux fichiers `Ascension-v0.19.3.apk` et `Ascension-v0.19.3-offline.html` livrés.
 
 ## GitHub Pages
 
@@ -31,10 +31,10 @@ Le fichier `.nojekyll` évite que GitHub Pages passe le site dans Jekyll (ce qui
 ## Contrôles rapides après mise en ligne
 
 - L’accueil, `privacy.html` et `./play/` s’affichent.
-- `./downloads/Ascension-v0.19.0.apk`, `./downloads/Ascension-v0.19.0-offline.html` et `./downloads/SHA256SUMS.txt` répondent en 200, avec les tailles 13 986 304, 15 012 397 et le fichier de sommes.
+- `./downloads/Ascension-v0.19.3.apk`, `./downloads/Ascension-v0.19.3-offline.html` et `./downloads/SHA256SUMS.txt` répondent en 200, avec les tailles 13 990 722, 15 032 113 et le fichier de sommes.
 - Après une visite, le mode avion lance encore `./play/`.
 - L’APK n’a **pas** à être mis dans un bundle Play (`.aab`) pour ce site.
 
 ## Mise à jour future
 
-Remplace les fichiers du dossier (jeu dans `play/`, APK / HTML dans `downloads/`, `SHA256SUMS.txt`) et réenvoie. Le service worker porte le nom de cache `ascension-v0.19.0` : quand tu passeras à une version suivante, change cette constante dans `sw.js` (et la pastille de version du site) pour que les navigateurs abandonnent l’ancien cache.
+Remplace les fichiers du dossier (jeu dans `play/`, APK / HTML dans `downloads/`, `SHA256SUMS.txt`) et réenvoie. Le service worker porte le nom de cache `ascension-v0.19.3` : quand tu passeras à une version suivante, change cette constante dans `sw.js` (et la pastille de version du site) pour que les navigateurs abandonnent l’ancien cache.

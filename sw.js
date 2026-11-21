@@ -1,7 +1,7 @@
-/* Ascension official site — service worker v0.19.0
+/* Ascension official site — service worker v0.19.3
    Cache First for game assets; Network First for HTML; never cache ./downloads/ */
 'use strict';
-var CACHE_NAME = 'ascension-v0.19.0';
+var CACHE_NAME = 'ascension-v0.19.3';
 var PRECACHE = [
   "./.nojekyll",
   "./DEPLOY.md",

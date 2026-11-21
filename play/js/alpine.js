@@ -144,6 +144,7 @@
           c.restore();
         }
         if (Ly.decor) { Ly.decor(c, vw, base, off, fn, E, vh); }
+        if (window.__bgProbe && window.__bgProbe.layers) { window.__bgProbe.layers.push({ kind: 'layer', par: Ly.par, base: base, gk: Ly.gk || 0, y: Ly.y }); }
       }
       var LYS = null, LYK = -1;
       function drawBackground(c, vw, vh, gs0, gain) {
@@ -157,6 +158,7 @@
           c.fillStyle = A.grad(c, 0, hy - 24, 0, hy + 40, [0, K.horizonHaze.replace(/[\d.]+\)$/, '0)'), 0.55, K.horizonHaze, 1, K.horizonHaze.replace(/[\d.]+\)$/, '0)')]); c.fillRect(0, hy - 24, vw, 64);
         }
         if (K.bgExtra) { K.bgExtra(c, vw, vh, hy, gain, E, H); }
+        if (window.__bgProbe) { window.__bgProbe.hy = hy; window.__bgProbe.themeHy = hy; }
       }
 
       /* ---------- derrière le chemin : végétation plantée sur le terrain ---------- */

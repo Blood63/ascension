@@ -111,6 +111,7 @@
         { t: 'slope',  len: 300, rise: 42, zone: 'sun', boulders: [0.38, 0.78], bottle: 0.5 },
         { t: 'flat',   len: 160, sheep: { f: 0.48, n: 1, trig: 220 }, hint: 'sheep' },
         { t: 'slope',  len: 340, rise: 46, rail: true, pottoks: { f: 0.42, n: 1, trig: 230 }, bottle: 0.55 },
+        { t: 'flat',   len: 170, rail: true, train: { f: 0.5, w: 46, trig: 190, warn: 1.4, speed: 190 }, hint: 'train' },
         { t: 'flat',   len: 110, cp: true, hint: 'checkpoint' },
         { t: 'slope',  len: 300, rise: 42, rail: true, rocks: [3.8, 5.2], boulders: [0.55], hint: 'rocks' },
         { t: 'gap',    len: 20, hint: 'gap' },
@@ -132,11 +133,13 @@
       },
       hints: hints({
         start: 'Avance avec ◀ ▶ et saute avec ▲. Sentier du train de la Rhune, depuis le col de Saint-Ignace.',
-        fog:   'Brouillard marin : on voit moins loin. Reste sur la trace.'
+        fog:   'Brouillard marin : on voit moins loin. Reste sur la trace.',
+        train: 'Passage à niveau ! Les feux clignotent et la cloche sonne : le petit train à crémaillère de la Rhune arrive. Attends dans la zone avant les rails, puis traverse une fois le train passé. Il est prioritaire et fait très mal.'
       }),
       hintsPad: hintsPad({
         start: 'Avance avec le stick gauche (ou la croix) et saute avec A. Sentier du train, depuis le col de Saint-Ignace.',
-        fog:   'Brouillard marin : on voit moins loin. Reste sur la trace.'
+        fog:   'Brouillard marin : on voit moins loin. Reste sur la trace.',
+        train: 'Passage à niveau : les feux clignotent, la cloche sonne. Attends avant les rails, puis traverse une fois le petit train passé.'
       })
     }
   };
@@ -366,8 +369,8 @@
       lives: 3, ext: 900, crater: { kind: 'plain' },
       winZoomPort: 0.5, winZoomLand: 0.64, winLook: 0.80,
       pieces: [
-        { t: 'flat',   len: 220, hint: 'start', find: [{ id: 'larraitz', f: 0.4 }] },
-        { t: 'slope',  len: 320, rise: 40, hint: 'water', bottle: 0.5 },
+        { t: 'flat',   len: 220, hint: 'start' },
+        { t: 'slope',  len: 320, rise: 40, hint: 'water', bottle: 0.5, find: [{ id: 'larraitz', f: 0.38 }] },
         { t: 'slope',  len: 280, rise: 36 },
         { t: 'flat',   len: 180, sheep: { f: 0.5, n: 2, trig: 220, spacing: 2.6 }, hint: 'sheep' },
         { t: 'slope',  len: 340, rise: 50, pottoks: { f: 0.45, n: 1, trig: 230 }, boulders: [0.65] },

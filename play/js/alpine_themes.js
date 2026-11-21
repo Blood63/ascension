@@ -169,7 +169,9 @@
   }
   /* Y écran du sentier (le fond est dessiné AVANT la translation caméra). */
   function vistaPathY(E, hy) {
-    if (E.P && isFinite(E.P.y) && E.cam) { return E.P.y - E.cam.y; }
+    var gy = E.camGroundY;
+    if ((gy == null || !isFinite(gy) || gy < -1e5) && E.G && E.P) { gy = E.G[E.P.x | 0]; }
+    if (E.cam && isFinite(gy) && gy > -1e5) { return gy - E.cam.y; }
     return hy + 20;
   }
   function auditSeat(name, x, foot, surf) {
@@ -224,33 +226,330 @@
       typFirW1(c, x + (h - 0.5) * 6, y, sc, col);
     }
   }
-  /* Cône phonolitique du Puy Griou : isolé, flancs concaves très raides, pas un triangle générique. */
-  function typGriou(c, x, y, sc) {
-    var h, w;
+
+  /* Buron cantalien : pierre volcanique, toit de lauze lourd, porte basse. y = pied. */
+  function typBuron(c, x, y, sc) {
+    var wallH, bw, i, lx;
     sc = sc || 1;
-    h = 46 * sc;
-    w = 16 * sc;
-    c.fillStyle = A.grad(c, 0, y - h, 0, y, [0, '#7a8068', 0.35, '#5e6e50', 1, '#4a5a40']);
+    wallH = 11 * sc;
+    bw = 20 * sc;
+    c.fillStyle = 'rgba(30, 24, 18, 0.2)';
     c.beginPath();
-    c.moveTo(x, y - h);
-    c.quadraticCurveTo(x + w * 0.12, y - h * 0.78, x + w * 0.38, y - h * 0.4);
-    c.quadraticCurveTo(x + w * 0.95, y - h * 0.1, x + w * 1.15, y);
-    c.lineTo(x - w * 1.15, y);
-    c.quadraticCurveTo(x - w * 0.95, y - h * 0.1, x - w * 0.38, y - h * 0.4);
-    c.quadraticCurveTo(x - w * 0.12, y - h * 0.78, x, y - h);
+    c.ellipse(x, y + 0.5 * sc, bw * 0.62, 1.5 * sc, 0, 0, 7);
+    c.fill();
+    c.fillStyle = A.grad(c, 0, y - wallH, 0, y, [0, '#8a8070', 1, '#5a5044']);
+    c.fillRect(x - bw / 2, y - wallH, bw, wallH);
+    c.strokeStyle = '#2a2218';
+    c.lineWidth = 0.55 * sc;
+    c.strokeRect(x - bw / 2, y - wallH, bw, wallH);
+    c.fillStyle = 'rgba(40, 32, 24, 0.35)';
+    for (i = 0; i < 5; i++) {
+      c.fillRect(x - bw / 2 + 1.2 * sc + i * 3.4 * sc, y - wallH + 1.4 * sc, 2.6 * sc, 1.1 * sc);
+    }
+    /* toit de lauze : écailles sombres en pente */
+    c.fillStyle = '#4a4e52';
+    c.beginPath();
+    c.moveTo(x - bw / 2 - 2.4 * sc, y - wallH + 0.4 * sc);
+    c.lineTo(x, y - wallH - 8.5 * sc);
+    c.lineTo(x + bw / 2 + 2.4 * sc, y - wallH + 0.4 * sc);
     c.closePath();
     c.fill();
-    /* pointe et éboulis sommitaux, phonolite plus sombre — pas un couvercle triangulaire */
-    c.fillStyle = '#5a584e';
+    c.strokeStyle = '#2a2c30';
+    c.lineWidth = 0.5 * sc;
+    c.stroke();
+    c.strokeStyle = 'rgba(200, 204, 210, 0.28)';
+    c.lineWidth = 0.35 * sc;
+    for (i = 0; i < 4; i++) {
+      lx = (i + 1) / 5;
+      c.beginPath();
+      c.moveTo(x - (bw / 2 + 1.6 * sc) * (1 - lx), y - wallH - 8.5 * sc * lx + 0.4 * sc);
+      c.lineTo(x + (bw / 2 + 1.6 * sc) * (1 - lx), y - wallH - 8.5 * sc * lx + 0.4 * sc);
+      c.stroke();
+    }
+    c.fillStyle = '#2a2018';
+    c.fillRect(x - 2.2 * sc, y - 6.2 * sc, 4.4 * sc, 6.2 * sc);
+    c.fillStyle = '#3a5060';
+    c.fillRect(x + 3.4 * sc, y - wallH + 2.6 * sc, 3.2 * sc, 2.8 * sc);
+    auditSeat('mary-buron', x, y, y);
+  }
+  /* Muret de pierres sèches, assis sur y, légèrement irrégulier. */
+  function typMuret(c, x, y, w, sc) {
+    var i, px, py, pw, ph;
+    sc = sc || 1;
+    w = w || 28;
+    c.fillStyle = 'rgba(30, 24, 18, 0.14)';
+    c.fillRect(x, y - 0.2 * sc, w * sc, 1.2 * sc);
+    for (i = 0; i < Math.max(4, (w / 3.2) | 0); i++) {
+      px = x + i * 3.2 * sc + (i % 3) * 0.3 * sc;
+      py = y - (2.2 + (i % 2) * 0.8) * sc;
+      pw = (2.6 + (i % 4) * 0.35) * sc;
+      ph = (2.0 + (i % 3) * 0.5) * sc;
+      c.fillStyle = i % 2 ? '#6a6458' : '#8a8274';
+      c.fillRect(px, py, pw, ph);
+      c.strokeStyle = 'rgba(30, 24, 18, 0.35)';
+      c.lineWidth = 0.3 * sc;
+      c.strokeRect(px, py, pw, ph);
+    }
+  }
+  /* Pyramide du Puy Mary : crête triangulaire acérée, cirque glaciaire, stries rocheuses, estives. */
+  function typPuyMary(c, x, y, sc) {
+    var h, w, i, peakX, leftFoot, rightFoot, yBase;
+    sc = sc || 1;
+    h = 80 * sc;
+    w = 98 * sc;
+    yBase = y + 22 * sc;
+    peakX = x + 7 * sc;
+    leftFoot = x - w * 1.08;
+    rightFoot = x + w * 1.2;
+    c.fillStyle = A.grad(c, peakX, y - h, rightFoot, y, [0, '#8e9488', 0.22, '#7c8c58', 0.55, '#5e7e44', 1, '#3e5e34']);
     c.beginPath();
-    c.moveTo(x, y - h);
-    c.quadraticCurveTo(x + w * 0.18, y - h * 0.86, x + w * 0.22, y - h * 0.7);
-    c.lineTo(x - w * 0.2, y - h * 0.72);
+    c.moveTo(leftFoot, yBase);
+    c.lineTo(leftFoot + 6 * sc, y);
+    c.quadraticCurveTo(x - w * 0.78, y - h * 0.2, x - w * 0.58, y - h * 0.36);
+    c.quadraticCurveTo(x - w * 0.46, y - h * 0.26, x - w * 0.34, y - h * 0.5);
+    c.quadraticCurveTo(x - w * 0.2, y - h * 0.7, peakX - 5 * sc, y - h * 0.92);
+    c.lineTo(peakX, y - h);
+    c.quadraticCurveTo(peakX + w * 0.1, y - h * 0.8, x + w * 0.26, y - h * 0.54);
+    c.quadraticCurveTo(x + w * 0.5, y - h * 0.3, x + w * 0.78, y - h * 0.12);
+    c.quadraticCurveTo(x + w * 1.02, y - h * 0.04, rightFoot, y);
+    c.lineTo(rightFoot, yBase);
+    c.closePath();
+    c.fill();
+    c.fillStyle = A.grad(c, peakX, y - h, leftFoot, y, [0, '#4a5248', 0.4, '#384832', 1, '#2a3628']);
+    c.beginPath();
+    c.moveTo(peakX, y - h);
+    c.quadraticCurveTo(peakX - 5 * sc, y - h * 0.92, x - w * 0.2, y - h * 0.7);
+    c.quadraticCurveTo(x - w * 0.34, y - h * 0.5, x - w * 0.46, y - h * 0.26);
+    c.quadraticCurveTo(x - w * 0.58, y - h * 0.36, x - w * 0.78, y - h * 0.2);
+    c.lineTo(leftFoot + 6 * sc, y);
+    c.lineTo(leftFoot, yBase);
+    c.lineTo(x, yBase);
+    c.closePath();
+    c.fill();
+    c.fillStyle = 'rgba(74, 70, 62, 0.58)';
+    c.beginPath();
+    c.moveTo(peakX, y - h);
+    c.quadraticCurveTo(peakX + w * 0.1, y - h * 0.78, x + w * 0.22, y - h * 0.48);
+    c.lineTo(x - w * 0.18, y - h * 0.5);
+    c.quadraticCurveTo(peakX - 10 * sc, y - h * 0.8, peakX, y - h);
+    c.closePath();
+    c.fill();
+    c.strokeStyle = 'rgba(36, 32, 26, 0.55)';
+    c.lineWidth = Math.max(0.5, 0.9 * sc);
+    c.beginPath();
+    for (i = 0; i < 6; i++) {
+      c.moveTo(peakX + (i % 2 ? 3 : -4) * sc, y - h * (0.94 - i * 0.035));
+      c.quadraticCurveTo(
+        peakX + (i < 3 ? -0.1 : 0.1) * (0.1 + i * 0.05) * w,
+        y - h * (0.74 - i * 0.055),
+        peakX + (i < 3 ? -1 : 1) * (0.16 + i * 0.06) * w,
+        y - h * (0.5 - i * 0.035)
+      );
+    }
+    c.stroke();
+    c.strokeStyle = 'rgba(200, 180, 132, 0.9)';
+    c.lineWidth = Math.max(0.75, 1.2 * sc);
+    c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(x + w * 0.7, y - h * 0.06);
+    c.lineTo(x + w * 0.2, y - h * 0.14);
+    c.lineTo(x + w * 0.46, y - h * 0.24);
+    c.lineTo(x + w * 0.14, y - h * 0.34);
+    c.lineTo(x + w * 0.3, y - h * 0.44);
+    c.lineTo(peakX + 8 * sc, y - h * 0.6);
+    c.lineTo(peakX + 3 * sc, y - h * 0.76);
+    c.stroke();
+    c.lineCap = 'butt';
+    c.strokeStyle = 'rgba(240, 230, 200, 0.75)';
+    c.lineWidth = Math.max(0.65, 1 * sc);
+    c.beginPath();
+    c.moveTo(x - w * 0.16, y - h * 0.7);
+    c.quadraticCurveTo(peakX - 4 * sc, y - h * 0.97, peakX, y - h);
+    c.quadraticCurveTo(peakX + 6 * sc, y - h * 0.95, x + w * 0.18, y - h * 0.68);
+    c.stroke();
+    auditSeat('mary-pyramid', x, y, y);
+  }
+  function typValCourre(c, x, yRim, w, d) {
+    var yBase, i, cx;
+    d = Math.max(28, d);
+    w = Math.max(80, w);
+    yBase = yRim + d;
+    c.fillStyle = A.grad(c, 0, yRim, 0, yBase, [0, '#6a7a58', 0.18, '#4a5a40', 0.5, '#3a4a36', 1, '#2a362c']);
+    c.beginPath();
+    c.moveTo(x - w * 1.1, yBase);
+    c.lineTo(x - w * 1.04, yRim + d * 0.52);
+    c.quadraticCurveTo(x - w * 0.94, yRim + d * 0.16, x - w * 0.8, yRim + 5);
+    c.lineTo(x - w * 0.7, yRim + 11);
+    c.lineTo(x - w * 0.58, yRim - 8);
+    c.quadraticCurveTo(x - w * 0.5, yRim - 2, x - w * 0.4, yRim + 7);
+    c.lineTo(x - w * 0.26, yRim - 12);
+    c.lineTo(x - w * 0.16, yRim + 4);
+    c.quadraticCurveTo(x - w * 0.02, yRim - 7, x + w * 0.08, yRim - 10);
+    c.lineTo(x + w * 0.18, yRim + 6);
+    c.lineTo(x + w * 0.32, yRim - 14);
+    c.quadraticCurveTo(x + w * 0.42, yRim - 4, x + w * 0.52, yRim + 5);
+    c.lineTo(x + w * 0.64, yRim - 9);
+    c.lineTo(x + w * 0.76, yRim + 8);
+    c.quadraticCurveTo(x + w * 0.9, yRim + d * 0.16, x + w * 1.04, yRim + d * 0.5);
+    c.lineTo(x + w * 1.1, yBase);
+    c.closePath();
+    c.fill();
+    /* bande rocheuse sommitale (lisible au-dessus de la forêt) */
+    c.fillStyle = A.grad(c, 0, yRim - 14, 0, yRim + 18, [0, '#7a766c', 1, '#4a4a42']);
+    c.beginPath();
+    c.moveTo(x - w * 0.8, yRim + 16);
+    c.lineTo(x - w * 0.7, yRim + 11);
+    c.lineTo(x - w * 0.58, yRim - 8);
+    c.quadraticCurveTo(x - w * 0.5, yRim - 2, x - w * 0.4, yRim + 7);
+    c.lineTo(x - w * 0.26, yRim - 12);
+    c.lineTo(x - w * 0.16, yRim + 4);
+    c.quadraticCurveTo(x - w * 0.02, yRim - 7, x + w * 0.08, yRim - 10);
+    c.lineTo(x + w * 0.18, yRim + 6);
+    c.lineTo(x + w * 0.32, yRim - 14);
+    c.quadraticCurveTo(x + w * 0.42, yRim - 4, x + w * 0.52, yRim + 5);
+    c.lineTo(x + w * 0.64, yRim - 9);
+    c.lineTo(x + w * 0.76, yRim + 8);
+    c.lineTo(x + w * 0.78, yRim + 18);
+    c.quadraticCurveTo(x, yRim + 10, x - w * 0.8, yRim + 16);
+    c.closePath();
+    c.fill();
+    /* paroi concave haute, pour que le cirque se lise au-dessus des arbres */
+    c.fillStyle = A.grad(c, 0, yRim + 2, 0, yBase - 10, [0, 'rgba(42, 38, 32, 0.42)', 0.45, 'rgba(32, 30, 26, 0.55)', 1, 'rgba(24, 28, 24, 0.28)']);
+    c.beginPath();
+    c.moveTo(x - w * 0.66, yRim + 6);
+    c.quadraticCurveTo(x - w * 0.3, yRim + d * 0.36, x - w * 0.1, yRim + d * 0.62);
+    c.quadraticCurveTo(x, yRim + d * 0.7, x + w * 0.1, yRim + d * 0.62);
+    c.quadraticCurveTo(x + w * 0.3, yRim + d * 0.36, x + w * 0.62, yRim + 6);
+    c.quadraticCurveTo(x, yRim + 16, x - w * 0.66, yRim + 6);
+    c.closePath();
+    c.fill();
+    c.strokeStyle = 'rgba(28, 26, 22, 0.55)';
+    c.lineWidth = 1.15;
+    c.beginPath();
+    for (i = 0; i < 7; i++) {
+      cx = x + (i - 3) * w * 0.13;
+      c.moveTo(cx + (i % 3 - 1) * 6, yRim + 8 + (i % 2) * 4);
+      c.quadraticCurveTo(cx + 5, yRim + d * 0.36, cx - 2, yRim + d * 0.68);
+    }
+    c.stroke();
+    typNeve(c, x - w * 0.22, yRim + d * 0.42, Math.max(0.75, w / 260), 1);
+    typNeve(c, x + w * 0.06, yRim + d * 0.36, Math.max(0.7, w / 280), 3);
+    typNeve(c, x + w * 0.34, yRim + d * 0.3, Math.max(0.6, w / 320), 5);
+    auditSeat('sancy-val-courre', x, yRim, yRim);
+  }
+  function typNeve(c, x, y, sc, seed) {
+    var i, px, py, pw, ph;
+    sc = sc || 1;
+    seed = seed || 0;
+    c.fillStyle = 'rgba(236, 244, 255, 0.88)';
+    for (i = 0; i < 3; i++) {
+      px = x + (i - 0.6) * 5.5 * sc + ((seed + i * 3) % 5) * 0.3 * sc;
+      py = y - (8 + i * 5 + (seed % 3)) * sc;
+      pw = (3.2 + (i % 3) * 0.9) * sc;
+      ph = (7 + (i % 2) * 3) * sc;
+      c.beginPath();
+      c.moveTo(px, py);
+      c.quadraticCurveTo(px + pw * 0.3, py - ph, px + pw * 0.15, py - ph * 0.2);
+      c.quadraticCurveTo(px + pw * 0.05, py + ph * 0.15, px, py);
+      c.closePath();
+      c.fill();
+    }
+    /* corniche au sommet du couloir */
+    c.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    c.beginPath();
+    c.ellipse(x + 1.5 * sc, y - 22 * sc, 4 * sc, 1.0 * sc, -0.2, 0, 7);
+    c.fill();
+  }
+  /* Passerelle / escalier de bois sommitaux. */
+  function typBoardwalk(c, x0, y, x1, sc) {
+    var x, post;
+    sc = sc || 1;
+    if (x1 < x0) { post = x0; x0 = x1; x1 = post; }
+    c.fillStyle = '#6a4a2c';
+    c.fillRect(x0, y - 1.6 * sc, x1 - x0, 1.8 * sc);
+    c.fillStyle = '#c49a62';
+    c.fillRect(x0, y - 2.2 * sc, x1 - x0, 0.8 * sc);
+    c.strokeStyle = '#4a3220';
+    c.lineWidth = 0.7 * sc;
+    c.beginPath();
+    c.moveTo(x0, y - 9 * sc);
+    c.lineTo(x1, y - 9 * sc);
+    c.moveTo(x0, y - 5.4 * sc);
+    c.lineTo(x1, y - 5.4 * sc);
+    c.stroke();
+    for (x = x0; x <= x1 + 0.1; x += 7 * sc) {
+      c.fillStyle = '#4e3520';
+      c.fillRect(x - 0.55 * sc, y - 9.2 * sc, 1.15 * sc, 9.2 * sc);
+      c.fillStyle = '#8a6840';
+      c.fillRect(x - 0.55 * sc, y - 9.2 * sc, 0.45 * sc, 9.2 * sc);
+    }
+  }
+
+
+  /* Soubassement continu : évite les trous de ciel entre les massifs typifiés. */
+  function typBaseHills(c, vw, y, off, c0, c1) {
+    off = off || 0;
+    c.fillStyle = A.grad(c, 0, y - 44, 0, y + 24, [0, c0 || '#7a9658', 1, c1 || '#4a6a3c']);
+    c.beginPath();
+    c.moveTo(-48, y + 72);
+    c.lineTo(-48, y - 4);
+    c.quadraticCurveTo(0.1 * vw + off, y - 30, 0.2 * vw + off, y - 12);
+    c.quadraticCurveTo(0.32 * vw + off, y - 38, 0.42 * vw + off, y - 13);
+    c.quadraticCurveTo(0.54 * vw + off, y - 42, 0.64 * vw + off, y - 11);
+    c.quadraticCurveTo(0.76 * vw + off, y - 32, 0.88 * vw + off, y - 16);
+    c.quadraticCurveTo(0.96 * vw + off, y - 26, vw + 48, y - 6);
+    c.lineTo(vw + 48, y + 72);
+    c.closePath();
+    c.fill();
+    c.fillStyle = 'rgba(40, 48, 32, 0.16)';
+    c.beginPath();
+    c.moveTo(0.2 * vw + off, y - 12);
+    c.quadraticCurveTo(0.32 * vw + off, y - 38, 0.42 * vw + off, y - 13);
+    c.quadraticCurveTo(0.32 * vw + off, y - 8, 0.2 * vw + off, y - 12);
+    c.fill();
+    c.beginPath();
+    c.moveTo(0.54 * vw + off, y - 11);
+    c.quadraticCurveTo(0.64 * vw + off, y - 42, 0.76 * vw + off, y - 14);
+    c.quadraticCurveTo(0.64 * vw + off, y - 6, 0.54 * vw + off, y - 11);
+    c.fill();
+  }
+  function typGriou(c, x, y, sc) {
+    var h, w, yBase;
+    sc = sc || 1;
+    h = 40 * sc;
+    w = 42 * sc;
+    yBase = y + 14 * sc;
+    /* cône phonolitique massif, dôme arrondi au sommet */
+    c.fillStyle = A.grad(c, x + w * 0.45, y - h, x - w, y, [0, '#8c8c7a', 0.4, '#6c7260', 1, '#4a5444']);
+    c.beginPath();
+    c.moveTo(x - w * 1.25, yBase);
+    c.lineTo(x - w * 1.18, y);
+    c.quadraticCurveTo(x - w * 0.8, y - h * 0.38, x - w * 0.42, y - h * 0.68);
+    c.quadraticCurveTo(x - w * 0.18, y - h * 0.92, x, y - h * 0.98);
+    c.quadraticCurveTo(x + w * 0.2, y - h * 1.0, x + w * 0.42, y - h * 0.7);
+    c.quadraticCurveTo(x + w * 0.92, y - h * 0.3, x + w * 1.22, y);
+    c.lineTo(x + w * 1.28, yBase);
+    c.closePath();
+    c.fill();
+    c.fillStyle = 'rgba(40, 40, 34, 0.3)';
+    c.beginPath();
+    c.moveTo(x, y - h * 0.98);
+    c.quadraticCurveTo(x - w * 0.18, y - h * 0.92, x - w * 0.42, y - h * 0.68);
+    c.quadraticCurveTo(x - w * 0.8, y - h * 0.38, x - w * 1.18, y);
+    c.lineTo(x, y);
+    c.closePath();
+    c.fill();
+    /* éboulis de phonolite au pied, sans calotte posée */
+    c.fillStyle = 'rgba(92, 90, 80, 0.45)';
+    c.beginPath();
+    c.moveTo(x - w * 0.8, y);
+    c.quadraticCurveTo(x, y - 8 * sc, x + w * 0.8, y);
+    c.lineTo(x + w * 0.8, yBase);
+    c.lineTo(x - w * 0.8, yBase);
     c.closePath();
     c.fill();
     auditSeat('mary-griou', x, y, y);
   }
-  /* Peyre-Arse + Brèche de Roland : un seul massif proche, bosses herbeuses, cicatrices rocheuses, échancrure. */
   function typPeyreArseRidge(c, x, y, sc) {
     var h, w;
     sc = sc || 1;
@@ -323,34 +622,47 @@
   }
   /* Vallée glaciaire en U, profonde, flancs forestiers. yRim = crête, d = profondeur vers le bas (on regarde vers le bas). */
   function typGlacialValley(c, x, yRim, w, d, opt) {
-    var yFloor, cRim, cMid, cFloor;
+    var yFloor, yBase, cRim, cMid, cFloor;
     opt = opt || {};
-    d = Math.max(8, d);
+    d = Math.max(10, d);
     yFloor = yRim + d;
+    yBase = yFloor + Math.max(16, d * 0.85);
     cRim = opt.cRim || '#7aa056';
     cMid = opt.cMid || '#4a7a40';
     cFloor = opt.cFloor || '#2a5230';
-    c.fillStyle = A.grad(c, 0, yRim, 0, yFloor, [0, cRim, 0.4, cMid, 1, cFloor]);
+    c.fillStyle = A.grad(c, 0, yRim, 0, yBase, [0, cRim, 0.42, cMid, 1, cFloor]);
     c.beginPath();
-    c.moveTo(x - w, yRim);
-    c.quadraticCurveTo(x - w * 0.5, yRim + d * 0.3, x - w * 0.14, yFloor);
-    c.quadraticCurveTo(x, yFloor + d * 0.08, x + w * 0.14, yFloor);
-    c.quadraticCurveTo(x + w * 0.5, yRim + d * 0.3, x + w, yRim);
+    c.moveTo(x - w * 1.28, yBase);
+    c.lineTo(x - w, yRim);
+    c.quadraticCurveTo(x - w * 0.55, yRim + d * 0.22, x - w * 0.24, yFloor);
+    c.quadraticCurveTo(x, yFloor + d * 0.14, x + w * 0.24, yFloor);
+    c.quadraticCurveTo(x + w * 0.55, yRim + d * 0.22, x + w, yRim);
+    c.lineTo(x + w * 1.28, yBase);
+    c.closePath();
+    c.fill();
+    c.fillStyle = cFloor;
+    c.beginPath();
+    c.moveTo(x - w * 0.24, yFloor);
+    c.quadraticCurveTo(x, yFloor + d * 0.16, x + w * 0.24, yFloor);
+    c.quadraticCurveTo(x, yFloor + d * 0.24, x - w * 0.24, yFloor);
     c.closePath();
     c.fill();
     if (opt.forest !== 0) {
       c.fillStyle = opt.fCol || 'rgba(22, 48, 28, 0.55)';
       c.beginPath();
-      c.moveTo(x - w * 0.72, yRim + d * 0.38);
-      c.quadraticCurveTo(x - w * 0.35, yRim + d * 0.7, x - w * 0.08, yFloor - 1);
-      c.quadraticCurveTo(x, yFloor + d * 0.04, x + w * 0.08, yFloor - 1);
-      c.quadraticCurveTo(x + w * 0.35, yRim + d * 0.7, x + w * 0.72, yRim + d * 0.38);
-      c.quadraticCurveTo(x, yRim + d * 0.62, x - w * 0.72, yRim + d * 0.38);
-      c.closePath();
+      c.moveTo(x - w * 0.78, yRim + d * 0.28);
+      c.quadraticCurveTo(x - w * 0.4, yRim + d * 0.55, x - w * 0.28, yFloor - 2);
+      c.lineTo(x - w * 0.16, yFloor - 2);
+      c.quadraticCurveTo(x - w * 0.4, yRim + d * 0.4, x - w * 0.78, yRim + d * 0.28);
+      c.fill();
+      c.beginPath();
+      c.moveTo(x + w * 0.78, yRim + d * 0.28);
+      c.quadraticCurveTo(x + w * 0.4, yRim + d * 0.55, x + w * 0.28, yFloor - 2);
+      c.lineTo(x + w * 0.16, yFloor - 2);
+      c.quadraticCurveTo(x + w * 0.4, yRim + d * 0.4, x + w * 0.78, yRim + d * 0.28);
       c.fill();
     }
   }
-  /* Lame de vallée glaciaire (compat). y = rive. */
   function typValleyU(c, x, y, w, d, c0, c1) {
     typGlacialValley(c, x, y, w, d, { cRim: c0 || '#7a9a58', cMid: c0 || '#7a9a58', cFloor: c1 || '#3e5a36', forest: 0 });
   }
@@ -527,34 +839,55 @@
   }
   /* Aiguilles de Chaudefour : Dent de la Rancune + Crête de Coq, dents verticales. */
   function typNeedles(c, x, y, sc) {
-    var h, i, xs, hs, w;
+    /* Dykes/rochers volcaniques ancrés dans la crête : faces éclairée et ombre, sommets cassés, pas des cyprès. */
+    var i, dx, dw, dh, lean, yb, xs, hs, ws, leans, tops, yBase, k;
     sc = sc || 1;
-    /* socle : éperon herbeux, les dents s'y assisent (pas des bâtons flottants) */
-    c.fillStyle = A.grad(c, 0, y - 10 * sc, 0, y, [0, '#6a7a58', 1, '#4a5a40']);
+    yBase = y + 18 * sc;
+    c.fillStyle = A.grad(c, 0, y - 14 * sc, 0, yBase, [0, '#6e6a60', 1, '#3e4638']);
     c.beginPath();
-    c.moveTo(x - 28 * sc, y);
-    c.quadraticCurveTo(x - 8 * sc, y - 9 * sc, x + 6 * sc, y - 8 * sc);
-    c.quadraticCurveTo(x + 22 * sc, y - 6 * sc, x + 32 * sc, y);
+    c.moveTo(x - 44 * sc, yBase);
+    c.lineTo(x - 38 * sc, y - 2 * sc);
+    c.quadraticCurveTo(x - 8 * sc, y - 14 * sc, x + 10 * sc, y - 9 * sc);
+    c.quadraticCurveTo(x + 30 * sc, y - 8 * sc, x + 46 * sc, y);
+    c.lineTo(x + 48 * sc, yBase);
     c.closePath();
     c.fill();
-    c.fillStyle = '#5a5854';
-    xs = [-12, -1, 10, 20];
-    hs = [16, 24, 20, 13];
-    w = [5, 6, 5.5, 4.5];
+    xs = [-24, -6, 10, 26];
+    hs = [14, 20, 17, 12];
+    ws = [11, 15, 13, 10];
+    leans = [-0.1, 0.06, -0.07, 0.1];
+    tops = [0.18, 0.28, 0.12, 0.22]; /* flat / notched, not a sharp point */
     for (i = 0; i < xs.length; i++) {
-      h = hs[i] * sc;
+      dx = x + xs[i] * sc;
+      dw = ws[i] * sc;
+      dh = hs[i] * sc;
+      lean = leans[i] * dh;
+      yb = y - 3 * sc;
+      k = tops[i];
+      /* shadow face */
+      c.fillStyle = '#4a453c';
       c.beginPath();
-      c.moveTo(x + (xs[i] - w[i] * 0.5) * sc, y - 6 * sc);
-      c.lineTo(x + (xs[i] - w[i] * 0.2) * sc, y - 6 * sc - h * 0.5);
-      c.lineTo(x + xs[i] * sc, y - 6 * sc - h);
-      c.lineTo(x + (xs[i] + w[i] * 0.35) * sc, y - 6 * sc - h * 0.48);
-      c.lineTo(x + (xs[i] + w[i] * 0.55) * sc, y - 6 * sc);
+      c.moveTo(dx, yb);
+      c.lineTo(dx + lean, yb - dh);
+      c.lineTo(dx + lean + dw * k, yb - dh + 1.2 * sc);
+      c.lineTo(dx + dw * 0.55 + lean * 0.3, yb);
       c.closePath();
       c.fill();
+      /* lit face gris-brun */
+      c.fillStyle = '#9a9080';
+      c.beginPath();
+      c.moveTo(dx - dw * 0.62, yb);
+      c.lineTo(dx + lean - dw * k, yb - dh + 1.4 * sc);
+      c.lineTo(dx + lean, yb - dh);
+      c.lineTo(dx + dw * 0.08, yb);
+      c.closePath();
+      c.fill();
+      /* fracture sommitale */
+      c.fillStyle = '#6e6a62';
+      c.fillRect(dx + lean - dw * 0.18, yb - dh + 0.4 * sc, dw * 0.36, 1.3 * sc);
     }
     auditSeat('sancy-needles', x, y, y);
   }
-  /* Chaîne des Puys lointaine, Puy de Dôme typifié (cône tronqué), reste dans le cadre 461. */
   function typChainePuys(c, x, y, sc) {
     var i, px, ph, pw, list;
     sc = sc || 1;
@@ -630,41 +963,63 @@
   }
   /* Gare supérieure vue de loin : un seul volume, pieds sur la crête, pas un hameau qui flotte. */
   function typSancyStationFar(c, x, y, sc) {
-    sc = sc || 0.14;
-    var bw = 11 * sc, wallH = 7.5 * sc, by = y - wallH;
-    c.fillStyle = '#c8c0b0';
+    sc = sc || 0.7;
+    var bw = 22 * sc, wallH = 11 * sc, by = y - wallH, tw;
+    c.fillStyle = 'rgba(30,24,18,0.18)';
+    c.beginPath();
+    c.ellipse(x, y + 0.4 * sc, bw * 0.7, 1.6 * sc, 0, 0, 7);
+    c.fill();
+    c.fillStyle = A.grad(c, 0, by, 0, y, [0, '#c8c0b0', 1, '#9a9486']);
     c.fillRect(x - bw * 0.5, by, bw, wallH);
     c.strokeStyle = '#2a2420';
-    c.lineWidth = Math.max(0.35, 0.45 * sc);
+    c.lineWidth = Math.max(0.4, 0.5 * sc);
     c.strokeRect(x - bw * 0.5, by, bw, wallH);
-    c.fillStyle = '#6a7080';
+    c.fillStyle = '#4a3a2c';
+    c.fillRect(x - bw * 0.5, by + wallH * 0.62, bw, wallH * 0.38);
+    c.fillStyle = '#2c3a48';
+    c.fillRect(x - 6 * sc, by + 2.2 * sc, 4.2 * sc, 3.2 * sc);
+    c.fillRect(x + 0.6 * sc, by + 2.2 * sc, 4.2 * sc, 3.2 * sc);
+    c.fillStyle = '#7a8088';
     c.beginPath();
-    c.moveTo(x - bw * 0.55, by);
-    c.lineTo(x - bw * 0.15, by - 3.2 * sc);
-    c.lineTo(x + bw * 0.55, by);
+    c.moveTo(x - bw * 0.58, by);
+    c.lineTo(x - bw * 0.2, by - 4.2 * sc);
+    c.lineTo(x + bw * 0.58, by - 4.2 * sc);
+    c.lineTo(x + bw * 0.58, by);
     c.closePath();
     c.fill();
     c.stroke();
-    c.fillStyle = '#2c3a48';
-    c.fillRect(x - 1.6 * sc, by + 1.6 * sc, 3.2 * sc, 2.2 * sc);
+    tw = 7.2 * sc;
+    c.fillStyle = A.grad(c, 0, by - 11 * sc, 0, by - 3 * sc, [0, '#8d939c', 1, '#6a7078']);
+    c.fillRect(x + 1.5 * sc, by - 10.5 * sc, tw, 7.5 * sc);
+    c.strokeRect(x + 1.5 * sc, by - 10.5 * sc, tw, 7.5 * sc);
+    c.fillStyle = '#26323f';
+    c.fillRect(x + 2.3 * sc, by - 9.2 * sc, tw - 1.6 * sc, 2.4 * sc);
     auditSeat('sancy-station-far', x, y, y);
   }
-  /* Pylône et câble du téléphérique, pieds assis sur y. */
   function typCablePylon(c, x, y, h) {
-    var w;
-    h = h || 22;
-    w = h * 0.16;
-    c.strokeStyle = '#3a3a40';
-    c.lineWidth = 0.8;
+    var w, i;
+    h = h || 28;
+    w = Math.max(3.4, h * 0.22);
+    c.fillStyle = '#2e3036';
+    c.fillRect(x - w - 1.6, y - 1.3, 3.4, 1.5);
+    c.fillRect(x + w - 1.8, y - 1.3, 3.4, 1.5);
+    c.strokeStyle = '#3a3c44';
+    c.lineWidth = 1.2;
     c.beginPath();
     c.moveTo(x - w, y);
-    c.lineTo(x - w * 0.35, y - h);
+    c.lineTo(x - w * 0.28, y - h);
     c.moveTo(x + w, y);
-    c.lineTo(x + w * 0.35, y - h);
-    c.moveTo(x - w * 0.7, y - h * 0.45);
-    c.lineTo(x + w * 0.7, y - h * 0.45);
-    c.moveTo(x - w * 0.45, y - h * 0.8);
-    c.lineTo(x + w * 0.45, y - h * 0.8);
+    c.lineTo(x + w * 0.28, y - h);
+    for (i = 0.2; i < 0.95; i += 0.2) {
+      c.moveTo(x - w * (1 - i * 0.72), y - h * i);
+      c.lineTo(x + w * (1 - (i + 0.1) * 0.72), y - h * (i + 0.12));
+      c.moveTo(x + w * (1 - i * 0.72), y - h * i);
+      c.lineTo(x - w * (1 - (i + 0.1) * 0.72), y - h * (i + 0.12));
+    }
+    c.moveTo(x - w * 0.6, y - h);
+    c.lineTo(x + w * 0.6, y - h);
+    c.moveTo(x - w * 0.42, y - h - 2.2);
+    c.lineTo(x + w * 0.42, y - h - 2.2);
     c.stroke();
     auditSeat('sancy-pylon', x, y, y);
   }
@@ -692,14 +1047,26 @@
   }
   function typCableX(x0, x1, t) { return x0 + (x1 - x0) * t; }
   function typCabin(c, x, y, sc) {
-    sc = sc || 0.5;
-    c.fillStyle = '#d4a024';
-    c.fillRect(x - 3.2 * sc, y, 6.4 * sc, 4.2 * sc);
-    c.fillStyle = '#3a3a40';
-    c.fillRect(x - 3.4 * sc, y - 1.2 * sc, 6.8 * sc, 1.3 * sc);
-    c.fillStyle = '#2a4050';
-    c.fillRect(x - 2.2 * sc, y + 0.8 * sc, 2 * sc, 1.6 * sc);
-    auditSeat('sancy-cabin', x, y + 4.2 * sc, y + 4.2 * sc);
+    sc = sc || 0.85;
+    c.strokeStyle = '#2a2a30';
+    c.lineWidth = 0.85 * sc;
+    c.beginPath();
+    c.moveTo(x, y - 2.4 * sc);
+    c.lineTo(x, y);
+    c.stroke();
+    c.fillStyle = '#d8b030';
+    c.fillRect(x - 5.4 * sc, y, 10.8 * sc, 7.4 * sc);
+    c.strokeStyle = '#2a2820';
+    c.lineWidth = 0.55 * sc;
+    c.strokeRect(x - 5.4 * sc, y, 10.8 * sc, 7.4 * sc);
+    c.fillStyle = '#3a3a44';
+    c.fillRect(x - 5.7 * sc, y - 1.7 * sc, 11.4 * sc, 1.9 * sc);
+    c.fillStyle = '#2a4860';
+    c.fillRect(x - 4.2 * sc, y + 1.5 * sc, 3.4 * sc, 2.8 * sc);
+    c.fillRect(x + 0.8 * sc, y + 1.5 * sc, 3.4 * sc, 2.8 * sc);
+    c.fillStyle = 'rgba(255,255,255,0.35)';
+    c.fillRect(x - 4.2 * sc, y + 1.5 * sc, 1.2 * sc, 2.8 * sc);
+    auditSeat('sancy-cabin', x, y + 7.4 * sc, y + 7.4 * sc);
   }
 
   /* Polylines tracées (OpenCV + Douglas-Peucker) depuis les photos de référence. x,y normalisés.
@@ -1071,517 +1438,743 @@
   }
 
   function maryVista(c, vw, vh, hy, gain, E, H) {
-    var info = drawTracedVista(c, vw, vh, hy, E, H, 'mary');
-    var af = info.af, gx, gy, sc;
-    /* Griou : cône pointu au SE, plus loin et plus petit que Peyre-Arse, assis sur le massif. */
-    if (info.V && (info.atSum || af > 0.72)) {
+    var af = alpineAf(E, H, vw), atSum = atAlpineSummit(E, vw);
+    var pathY = vistaPathY(E, hy), yFloor = pathY - 2;
+    var offFar = vistaOff(E, 0.012, 18), offMid = vistaOff(E, 0.03, 28), offNear = vistaOff(E, 0.055, 36);
+    var p = E.clamp((E.cam && E.cam.x || 0) / Math.max(1, (E.feat && E.feat.summitX || 1) - 80), 0, 1);
+    var yFar, yMid, yNear, mx, my, scPy, aPy;
+    yFar = yFloor - 18 - 6 * ss(0.1, 0.8, af);
+    yMid = yFloor - 8;
+    yNear = yFloor - 2;
+    typBaseHills(c, vw, yMid + 8, offMid, '#8eaa68', '#4e6e40');
+    typPlomb(c, 0.18 * vw + offFar, yFar + 6, 0.85 + 0.2 * af);
+    typChavaroche(c, 0.62 * vw + offFar, yFar + 4, 0.95 + 0.18 * af);
+    typGlacialValley(c, 0.38 * vw + offFar, yFar - 2, vw * 0.32, 22 + 12 * af, {
+      cRim: '#6a8650', cMid: '#3e5a34', cFloor: '#2e4630', fCol: 'rgba(28, 52, 30, 0.45)', forest: 1
+    });
+    typGlacialValley(c, 0.8 * vw + offFar, yFar + 2, vw * 0.24, 18 + 10 * af, {
+      cRim: '#62804c', cMid: '#3a5632', cFloor: '#2c422c', fCol: 'rgba(28, 52, 30, 0.36)', forest: 1
+    });
+    typPeyreArseRidge(c, 0.32 * vw + offMid, yMid, 1.05 + 0.28 * af);
+    typGlacialValley(c, 0.58 * vw + offMid, yMid - 6, vw * 0.34, 30 + 14 * ss(0.15, 0.9, af), {
+      cRim: '#4e7040', cMid: '#3a5430', cFloor: '#243828', fCol: 'rgba(28, 52, 30, 0.45)', forest: 1
+    });
+    typFirBandW1(c, 0.08 * vw + offMid, 0.5 * vw + offMid, function (xx) { return yMid + 5; }, 11, { step: 13, s0: 0.52, dens: 0.82, col: '#2a4a30' });
+    typFirBandW1(c, 0.55 * vw + offMid, 0.92 * vw + offMid, function (xx) { return yMid + 6; }, 17, { step: 12, s0: 0.46, dens: 0.8, col: '#244428' });
+    typGriou(c, 0.74 * vw + offMid, yMid - 2, 0.95 + 0.45 * ss(0.05, 1, af));
+    typMuret(c, 0.14 * vw + offNear, yNear - 2, 52, 1.05);
+    typMuret(c, 0.46 * vw + offNear, yNear - 1, 44, 0.95);
+    typBuron(c, 0.24 * vw + offNear, yNear, 1.15);
+    typBuron(c, 0.48 * vw + offNear, yNear, 1.02);
+    typSalers(c, 0.34 * vw + offNear, yNear, 0.24, 1);
+    typSalers(c, 0.4 * vw + offNear, yNear + 1, 0.2, -1);
+    typSalers(c, 0.58 * vw + offNear, yNear, 0.2, 1);
+    if (af < 0.35) { typPeyrolHouse(c, 0.62 * vw + offNear, yNear, 0.75); }
+    aPy = (1 - ss(0.86, 0.97, p)) * (0.85 + 0.15 * ss(0.0, 0.15, p));
+    if (aPy > 0.05 && !atSum) {
+      scPy = 0.86 + 0.55 * ss(0.0, 0.78, p);
+      mx = (0.86 - 0.24 * ss(0.0, 0.85, p)) * vw + offNear * 0.4;
+      my = yNear - 2 - 4 * ss(0.2, 0.8, p);
       c.save();
-      c.globalAlpha = 0.35 + 0.65 * ss(0.72, 0.95, af);
-      gx = 0.78 * vw + (info.off || 0);
-      gy = slopeY(info.V, 0.78, info.yCrest, info.yFloor, info.rng, info.skySpan);
-      /* un peu plus bas que la crête proche : il est plus loin */
-      gy = gy + 6;
-      sc = 0.42 + 0.16 * ss(0.75, 1, af);
-      typGriou(c, gx, gy, sc);
+      c.globalAlpha = aPy;
+      typPuyMary(c, mx, my, scPy);
       c.restore();
     }
+    if (window.__bgProbe && window.__bgProbe.layers) {
+      window.__bgProbe.layers.push({ kind: 'mary-far', base: yFar }, { kind: 'mary-mid', base: yMid }, { kind: 'mary-near', base: yNear }, { kind: 'mary-path', base: pathY });
+    }
+  }
+  /* ===== L05 Sancy — helpers nouveaux (scène reconstruite, plans fermés) ===== */
+  function typRidgeClose(c, xs, ys, yBot, fill) {
+    var i;
+    if (!xs || xs.length < 2) { return; }
+    c.fillStyle = fill;
+    c.beginPath();
+    c.moveTo(xs[0], yBot);
+    c.lineTo(xs[0], ys[0]);
+    for (i = 1; i < xs.length; i++) { c.lineTo(xs[i], ys[i]); }
+    c.lineTo(xs[xs.length - 1], yBot);
+    c.closePath();
+    c.fill();
+  }
+  function typRidgeYAt(xs, ys, x, yBot) {
+    var i, t, x0, x1;
+    if (!xs || xs.length < 2) { return yBot; }
+    if (x <= xs[0] || x >= xs[xs.length - 1]) { return yBot; }
+    for (i = 0; i < xs.length - 1; i++) {
+      x0 = xs[i];
+      x1 = xs[i + 1];
+      if (x >= x0 && x <= x1) {
+        t = (x1 === x0) ? 0 : (x - x0) / (x1 - x0);
+        return ys[i] + t * (ys[i + 1] - ys[i]);
+      }
+    }
+    return yBot;
+  }
+  function typQuadPt(x0, y0, cx, cy, x1, y1, t) {
+    var u = 1 - t;
+    return [u * u * x0 + 2 * u * t * cx + t * t * x1, u * u * y0 + 2 * u * t * cy + t * t * y1];
+  }
+
+  /* Névés et ravines, toujours clipped à la masse (jamais dans le ciel). */
+  function typSancyWeather(c, xs, ys, yBot, p, peakH) {
+    var i, x, y, yR, neve, n, h;
+    if (!xs || xs.length < 3) { return; }
+    c.save();
+    c.beginPath();
+    c.moveTo(xs[0], yBot);
+    c.lineTo(xs[0], ys[0]);
+    for (i = 1; i < xs.length; i++) { c.lineTo(xs[i], ys[i]); }
+    c.lineTo(xs[xs.length - 1], yBot);
+    c.closePath();
+    c.clip();
+    /* Ravines étroites le long de la pente. */
+    c.strokeStyle = 'rgba(42,44,40,' + (0.22 + 0.1 * (1 - p)) + ')';
+    c.lineWidth = 1;
+    n = Math.min(xs.length - 1, 9);
+    for (i = 1; i < n; i++) {
+      x = xs[i];
+      y = ys[i];
+      c.beginPath();
+      c.moveTo(x + 1, y + 3);
+      c.quadraticCurveTo(x - 4, y + (peakH || 40) * 0.22, x - 2, y + (peakH || 40) * 0.48);
+      c.stroke();
+    }
+    /* Névés : lames courtes et obliques, jamais des drapeaux verticaux. */
+    neve = 0.15 + 0.55 * ss(0.28, 0.55, p);
+    c.fillStyle = 'rgba(236,242,250,' + (0.22 + 0.32 * neve) + ')';
+    h = peakH || 40;
+    for (i = 1; i < xs.length - 1; i++) {
+      if (i % 3 !== 1) { continue; }
+      x = xs[i];
+      y = ys[i];
+      c.beginPath();
+      c.moveTo(x + 1, y + 3);
+      c.lineTo(x + 5, y + 5);
+      c.lineTo(x - 4, y + h * 0.12);
+      c.lineTo(x - 8, y + h * 0.10);
+      c.closePath();
+      c.fill();
+    }
+    c.restore();
+  }
+
+  /* Plan très lointain : Cantal / horizon, plein cadre, bleu très pâle, fermé en bas. */
+  function typSancyHorizonPts(vw, yBase, h, off) {
+    var list, xs, ys, i;
+    list = [
+      [-0.14, 0.18], [0.00, 0.30], [0.10, 0.22], [0.22, 0.42],
+      [0.34, 0.28], [0.48, 0.50], [0.58, 0.34], [0.70, 0.46],
+      [0.82, 0.28], [0.94, 0.36], [1.14, 0.16]
+    ];
+    xs = [];
+    ys = [];
+    for (i = 0; i < list.length; i++) {
+      xs.push(list[i][0] * vw + off);
+      ys.push(yBase - list[i][1] * h);
+    }
+    return [xs, ys];
+  }
+  function typSancyHorizon(c, xs, ys, yBot) {
+    typRidgeClose(c, xs, ys, yBot, '#b0bec8');
+    typRidgeClose(c, xs, ys, yBot, 'rgba(220,230,238,.35)');
+  }
+
+  /* Plan lointain : crête des Monts Dore, plein cadre (Ferrand, Pas de l'Âne, Perdrix, Cacadogne, Cuzeau). */
+  function typSancyFarPts(vw, yBase, h, off) {
+    var list, xs, ys, i;
+    list = [
+      [-0.16, 0.30],
+      [-0.02, 0.46],
+      [0.10, 0.38],
+      [0.20, 0.58], /* Roc de Cuzeau / Crebasses */
+      [0.30, 0.42],
+      [0.40, 0.36], /* Pas de l'Âne, un col */
+      [0.50, 0.62],
+      [0.62, 0.92], /* Puy Ferrand */
+      [0.70, 0.64],
+      [0.80, 0.78], /* Perdrix / Cacadogne */
+      [0.90, 0.50],
+      [1.02, 0.40],
+      [1.16, 0.28]
+    ];
+    xs = [];
+    ys = [];
+    for (i = 0; i < list.length; i++) {
+      xs.push(list[i][0] * vw + off);
+      ys.push(yBase - list[i][1] * h);
+    }
+    return [xs, ys];
+  }
+  function typSancyFarCrest(c, xs, ys, yBot, p, peakH) {
+    typRidgeClose(c, xs, ys, yBot, '#8a9aaa');
+    typRidgeClose(c, xs, ys, yBot, 'rgba(200,214,226,.22)');
+    typSancyWeather(c, xs, ys, yBot, p, peakH || 50);
+  }
+
+  /* Plan moyen : le Sancy, plus organique, cirque du Val de Courre né de la crête. */
+  function typSancyMidPts(xPeak, yBase, peakH) {
+    var halfL, halfR, xs, ys, k, pts, i;
+    halfL = peakH * 2.05;
+    halfR = peakH * 1.42;
+    pts = [
+      [-1.18, 0.08],
+      [-1.02, 0.22],
+      [-0.92, 0.36],
+      [-0.82, 0.55], /* rive gauche du cirque, au-dessus de la forêt */
+      [-0.70, 0.30], /* creux du Val de Courre, lisible dans la face */
+      [-0.58, 0.46],
+      [-0.46, 0.58],
+      [-0.32, 0.70],
+      [-0.22, 0.78],
+      [-0.16, 0.80],
+      [-0.10, 0.88],
+      [-0.04, 0.97],
+      [0.00, 1.00],
+      [0.06, 0.91],
+      [0.10, 0.95],
+      [0.15, 0.84],
+      [0.20, 0.96],
+      [0.26, 0.80],
+      [0.34, 0.86],
+      [0.46, 0.58],
+      [0.62, 0.38],
+      [0.82, 0.22],
+      [1.12, 0.08]
+    ];
+    xs = [];
+    ys = [];
+    for (i = 0; i < pts.length; i++) {
+      k = pts[i][0];
+      xs.push(xPeak + k * (k < 0 ? halfL : halfR));
+      ys.push(yBase - pts[i][1] * peakH);
+    }
+    return [xs, ys];
+  }
+
+  function typSancyMassif(c, xs, ys, yBot, xPeak, yPeak, p, peakH) {
+    var i, t, xa, ya, fill, n, h;
+    if (p < 0.36) { fill = '#5c6a52'; }
+    else if (p < 0.52) { fill = '#6a7268'; }
+    else { fill = '#8a9290'; }
+    typRidgeClose(c, xs, ys, yBot, fill);
+    /* Ombres et lumières en coin étroits, pas en deux grands triangles. */
+    c.save();
+    c.beginPath();
+    c.moveTo(xs[0], yBot);
+    c.lineTo(xs[0], ys[0]);
+    for (i = 1; i < xs.length; i++) { c.lineTo(xs[i], ys[i]); }
+    c.lineTo(xs[xs.length - 1], yBot);
+    c.closePath();
+    c.clip();
+    c.fillStyle = 'rgba(40,48,42,' + (0.16 + 0.08 * (1 - p)) + ')';
+    for (i = 0; i < 4; i++) {
+      t = -0.55 + i * 0.12;
+      xa = xPeak + t * peakH * 1.3;
+      ya = typRidgeYAt(xs, ys, xa, yBot);
+      c.beginPath();
+      c.moveTo(xa, ya + 2);
+      c.lineTo(xa - peakH * 0.08, ya + peakH * 0.35);
+      c.lineTo(xa + peakH * 0.03, ya + peakH * 0.22);
+      c.closePath();
+      c.fill();
+    }
+    c.fillStyle = 'rgba(200,206,180,' + (0.08 + 0.06 * (1 - p)) + ')';
+    for (i = 0; i < 3; i++) {
+      t = 0.08 + i * 0.14;
+      xa = xPeak + t * peakH * 1.15;
+      ya = typRidgeYAt(xs, ys, xa, yBot);
+      c.beginPath();
+      c.moveTo(xa, ya + 2);
+      c.lineTo(xa + peakH * 0.1, ya + peakH * 0.3);
+      c.lineTo(xa - peakH * 0.02, ya + peakH * 0.18);
+      c.closePath();
+      c.fill();
+    }
+    /* Pelouses ou névés bas, suivant la pente. */
+    c.fillStyle = (p < 0.36) ? 'rgba(90,120,70,.28)' : 'rgba(200,212,222,.28)';
+    c.beginPath();
+    c.moveTo(xs[0], yBot);
+    for (i = 0; i < xs.length; i++) {
+      c.lineTo(xs[i], ys[i] + 0.62 * (yBot - ys[i]));
+    }
+    c.lineTo(xs[xs.length - 1], yBot);
+    c.closePath();
+    c.fill();
+    /* Éboulis : petits points dans le tiers inférieur, jamais dans le ciel. */
+    c.fillStyle = 'rgba(70,72,68,.35)';
+    for (i = 0; i < xs.length; i += 1) {
+      h = (i * 17 + 11) % 10;
+      xa = xs[i] + (h - 5) * 1.4;
+      ya = ys[i] + 0.55 * (yBot - ys[i]) + (h % 5);
+      if (ya < ys[i] + 8) { continue; }
+      c.beginPath();
+      c.arc(xa, ya, 0.7 + (h % 3) * 0.25, 0, 7);
+      c.fill();
+    }
+    typSancyCourreHollow(c, xs, ys, yBot, xPeak, yPeak, peakH, p);
+    typSancyWeather(c, xs, ys, yBot, p, peakH);
+    /* Arête sommitale, un trait irrégulier collé au faîte. */
+    c.strokeStyle = 'rgba(60,58,54,.45)';
+    c.lineWidth = 1.05;
+    c.beginPath();
+    c.moveTo(xs[0], ys[0]);
+    for (i = 1; i < xs.length; i++) { c.lineTo(xs[i], ys[i]); }
+    c.stroke();
+    c.restore();
+  }
+
+  /* Cirque du Val de Courre : U raviné ancré dans le flanc gauche, pas une dalle ni une ellipse. */
+  function typSancyCourreHollow(c, xs, ys, yBot, xPeak, yPeak, peakH, p) {
+    var xL, xR, yRimL, yRimR, yFloor, mid, i, xa, ya;
+    xL = xPeak - peakH * 1.68;
+    xR = xPeak - peakH * 0.85;
+    yRimL = typRidgeYAt(xs, ys, xL, yBot);
+    yRimR = typRidgeYAt(xs, ys, xR, yBot);
+    yFloor = Math.min(yBot - 6, Math.max(yRimL, yRimR) + peakH * (0.28 - 0.08 * ss(0, 0.7, p)));
+    mid = (xL + xR) * 0.5;
+    c.fillStyle = (p < 0.4) ? 'rgba(48,54,44,.58)' : 'rgba(90,100,108,.45)';
+    c.beginPath();
+    c.moveTo(xL, yRimL + 1);
+    c.quadraticCurveTo(mid - peakH * 0.08, yFloor - peakH * 0.04, mid, yFloor);
+    c.quadraticCurveTo(mid + peakH * 0.1, yFloor - peakH * 0.02, xR, yRimR + 2);
+    c.lineTo(xR - peakH * 0.06, Math.min(yBot - 4, yRimR + peakH * 0.55));
+    c.quadraticCurveTo(mid, yFloor + peakH * 0.16, xL + peakH * 0.06, Math.min(yBot - 4, yRimL + peakH * 0.55));
+    c.closePath();
+    c.fill();
+    /* Ravines à l'intérieur du cirque. */
+    c.strokeStyle = 'rgba(40,42,38,.4)';
+    c.lineWidth = 0.9;
+    for (i = 0; i < 4; i++) {
+      xa = xL + (xR - xL) * (0.2 + i * 0.18);
+      c.beginPath();
+      c.moveTo(xa, typRidgeYAt(xs, ys, xa, yBot) + 4);
+      c.quadraticCurveTo(xa - 3, yFloor - 4, mid + (i - 1.5) * 6, yFloor + 2);
+      c.stroke();
+    }
+    if (p > 0.35) {
+      c.fillStyle = 'rgba(232,238,246,.4)';
+      c.beginPath();
+      c.moveTo(mid - peakH * 0.12, yFloor - peakH * 0.06);
+      c.lineTo(mid + peakH * 0.1, yFloor - peakH * 0.04);
+      c.lineTo(mid + 2, yFloor + peakH * 0.1);
+      c.lineTo(mid - peakH * 0.08, yFloor + peakH * 0.08);
+      c.closePath();
+      c.fill();
+    }
+  }
+
+  function typSancyPylon(c, x, yFoot, h, w) {
+    var yTop, half, halfTop, i, n, ya, yb, wa, wb;
+    if (h < 6) { return; }
+    yTop = yFoot - h;
+    half = w * 0.5;
+    halfTop = Math.max(1.2, w * 0.22);
+    c.strokeStyle = '#3a3c44';
+    c.lineWidth = Math.max(0.8, h * 0.055);
+    c.beginPath();
+    c.moveTo(x - half, yFoot);
+    c.lineTo(x - halfTop, yTop);
+    c.stroke();
+    c.beginPath();
+    c.moveTo(x + half, yFoot);
+    c.lineTo(x + halfTop, yTop);
+    c.stroke();
+    n = h > 16 ? 3 : 2;
+    c.lineWidth = Math.max(0.5, h * 0.04);
+    c.strokeStyle = '#4a4c54';
+    for (i = 0; i < n; i++) {
+      ya = yFoot - h * (i / n);
+      yb = yFoot - h * ((i + 1) / n);
+      wa = half + (halfTop - half) * (i / n);
+      wb = half + (halfTop - half) * ((i + 1) / n);
+      c.beginPath();
+      c.moveTo(x - wa, ya);
+      c.lineTo(x + wb, yb);
+      c.stroke();
+      c.beginPath();
+      c.moveTo(x + wa, ya);
+      c.lineTo(x - wb, yb);
+      c.stroke();
+    }
+    c.lineWidth = Math.max(0.9, h * 0.07);
+    c.strokeStyle = '#2e3036';
+    c.beginPath();
+    c.moveTo(x - halfTop - 1.5, yTop);
+    c.lineTo(x + halfTop + 1.5, yTop);
+    c.stroke();
+  }
+
+  function typSancyCatenary(c, x0, y0, x1, y1, sag) {
+    var mx, my;
+    if (x1 <= x0) { return; }
+    mx = (x0 + x1) * 0.5;
+    my = Math.max(y0, y1) + sag;
+    c.strokeStyle = '#2a2c32';
+    c.lineWidth = 1.15;
+    c.beginPath();
+    c.moveTo(x0, y0);
+    c.quadraticCurveTo(mx, my, x1, y1);
+    c.stroke();
+    return [mx, my];
+  }
+
+  function typSancyCabin(c, x, y, sc) {
+    var w, h;
+    sc = sc || 1;
+    if (sc < 0.35) { return; }
+    w = 7.2 * sc;
+    h = 4.8 * sc;
+    c.strokeStyle = '#333238';
+    c.lineWidth = 0.8;
+    c.beginPath();
+    c.moveTo(x, y);
+    c.lineTo(x, y + 1.8 * sc);
+    c.stroke();
+    c.fillStyle = '#b85038';
+    c.fillRect(x - w * 0.5, y + 1.8 * sc, w, h);
+    c.fillStyle = '#2c2c32';
+    c.fillRect(x - w * 0.58, y + 1.3 * sc, w * 1.16, 1.15 * sc);
+    c.fillStyle = '#c8e0f0';
+    c.fillRect(x - w * 0.3, y + 2.8 * sc, w * 0.22, h * 0.36);
+    c.fillRect(x + w * 0.06, y + 2.8 * sc, w * 0.22, h * 0.36);
+  }
+
+  /* Gare supérieure : petit bâtiment posé sur l'épaule, à l'échelle du plan moyen. */
+  function typSancyStationOnSlope(c, x, yFoot, sc) {
+    var w, h, i;
+    sc = sc || 1;
+    if (sc < 0.28) { return; }
+    w = 16 * sc;
+    h = 8.5 * sc;
+    /* socle / terrasse ancrée dans la pente */
+    c.fillStyle = 'rgba(40,36,32,.35)';
+    c.beginPath();
+    c.ellipse(x, yFoot + 0.8 * sc, w * 0.62, 1.6 * sc, 0, 0, 7);
+    c.fill();
+    c.fillStyle = '#8a8880';
+    c.fillRect(x - w * 0.55, yFoot - 1.2 * sc, w * 1.1, 1.6 * sc);
+    /* corps */
+    c.fillStyle = '#d8d2c6';
+    c.fillRect(x - w * 0.5, yFoot - h, w, h - 1.2 * sc);
+    c.fillStyle = '#c4b8a4';
+    c.fillRect(x - w * 0.5, yFoot - h * 0.45, w, h * 0.2);
+    /* toit bas, un peu plus sombre */
+    c.fillStyle = '#4a4038';
+    c.beginPath();
+    c.moveTo(x - w * 0.62, yFoot - h + 1.2 * sc);
+    c.lineTo(x, yFoot - h - 3.2 * sc);
+    c.lineTo(x + w * 0.62, yFoot - h + 1.2 * sc);
+    c.closePath();
+    c.fill();
+    /* baies */
+    c.fillStyle = '#7a9aaa';
+    for (i = 0; i < 3; i++) {
+      c.fillRect(x - w * 0.38 + i * w * 0.28, yFoot - h * 0.72, w * 0.16, h * 0.28);
+    }
+  }
+
+  /* Petits cônes bleutés de la Chaîne des Puys — silhouette fermée (sommet). */
+
+  /* Chaîne des Puys au nord : cônes bleutés étagés, Puy de Dôme reconnaissable (sommet aplati). */
+  function typSancyPuysFar(c, vw, yHor, yBot, off) {
+    var xs, ys, i, list, px, ph;
+    off = off || 0;
+    list = [
+      [-0.14, 2],
+      [-0.04, 6],
+      [0.04, 3],
+      [0.12, 10],
+      [0.20, 4],
+      [0.28, 8],
+      [0.36, 3],
+      [0.44, 12],
+      [0.50, 28], /* Puy de Dôme, plus haut, sommet aplati */
+      [0.55, 27],
+      [0.62, 5],
+      [0.70, 14],
+      [0.78, 4],
+      [0.86, 9],
+      [0.94, 3],
+      [1.04, 7],
+      [1.14, 2]
+    ];
+    xs = [];
+    ys = [];
+    for (i = 0; i < list.length; i++) {
+      xs.push(list[i][0] * vw + off);
+      ys.push(yHor - list[i][1]);
+    }
+    typRidgeClose(c, xs, ys, yBot, '#8aa0b4');
+    typRidgeClose(c, xs, ys, yBot, 'rgba(210,222,232,.2)');
+  }
+
+  /* Monts du Cantal, plus loin et plus pâles que les Puys. */
+  function typSancyCantalFar(c, vw, yHor, yBot, off) {
+    typSancyHorizon(c, typSancyHorizonPts(vw, yHor, 22, off || 0)[0], typSancyHorizonPts(vw, yHor, 22, off || 0)[1], yBot);
+  }
+
+  /* Crêtes proches du massif (Ferrand, Cacadogne, Roc de Cuzeau) avec névés. */
+  function typSancySummitRidges(c, vw, yBase, h, yBot, off) {
+    var list, xs, ys, i;
+    list = [
+      [-0.14, 0.22],
+      [-0.02, 0.48],
+      [0.10, 0.34],
+      [0.22, 0.70], /* Roc de Cuzeau */
+      [0.34, 0.42],
+      [0.46, 0.86], /* Puy Ferrand */
+      [0.56, 0.58],
+      [0.68, 0.78], /* Cacadogne */
+      [0.80, 0.44],
+      [0.92, 0.56],
+      [1.14, 0.24]
+    ];
+    xs = [];
+    ys = [];
+    for (i = 0; i < list.length; i++) {
+      xs.push(list[i][0] * vw + off);
+      ys.push(yBase - list[i][1] * h);
+    }
+    typRidgeClose(c, xs, ys, yBot, '#748088');
+    typRidgeClose(c, xs, ys, yBot, 'rgba(200,210,216,.16)');
+    typSancyWeather(c, xs, ys, yBot, 0.85, h);
+    return [xs, ys];
+  }
+
+  /* Vallée du Mont-Dore en contrebas : creux dans le versant, au-dessus du sentier. */
+  function typSancyMontDoreValley(c, vw, pathY, yBot, off) {
+    var x0, x1, mid, yRim, yFloor;
+    x0 = vw * 0.04 + (off || 0);
+    x1 = vw * 0.46 + (off || 0);
+    mid = (x0 + x1) * 0.5;
+    yRim = pathY - 10;
+    yFloor = pathY - 4;
+    c.fillStyle = 'rgba(70,78,72,.42)';
+    c.beginPath();
+    c.moveTo(x0, yRim);
+    c.quadraticCurveTo(mid, yFloor + 2, x1, yRim - 2);
+    c.lineTo(x1 - 8, pathY + 4);
+    c.quadraticCurveTo(mid, pathY + 8, x0 + 8, pathY + 4);
+    c.closePath();
+    c.fill();
+    /* petite forêt d'étage, tout au fond de la vallée, sous le sentier visuel mais masquée par le sol si trop bas : on reste au niveau du rim. */
+    typFirBandW1(c, x0 + 10, x1 - 10, function (x) { return pathY - 5; }, 41, { step: 9, s0: 0.22, dens: 0.7, col: '#1a3324' });
+  }
+
+  /* Plan proche : pelouses, puis névés en bandes (pas d'ellipses). */
+  function typSancyNear(c, xs, ys, yBot, p) {
+    var i, x, y, fill;
+    if (p < 0.32) { fill = '#6a8a50'; }
+    else if (p < 0.44) { fill = '#9aa890'; }
+    else { fill = '#c8d2dc'; }
+    typRidgeClose(c, xs, ys, yBot, fill);
+    if (p < 0.36) {
+      typRidgeClose(c, xs, ys, yBot, 'rgba(160,176,120,.1)');
+    }
+    if (p >= 0.40) {
+      c.save();
+      c.beginPath();
+      c.moveTo(xs[0], yBot);
+      c.lineTo(xs[0], ys[0]);
+      for (i = 1; i < xs.length; i++) { c.lineTo(xs[i], ys[i]); }
+      c.lineTo(xs[xs.length - 1], yBot);
+      c.closePath();
+      c.clip();
+      c.fillStyle = 'rgba(236,242,250,' + (0.35 + 0.4 * ss(0.4, 0.6, p)) + ')';
+      for (i = 0; i < xs.length - 1; i += 2) {
+        x = (xs[i] + xs[i + 1]) * 0.5;
+        y = Math.min(ys[i], ys[i + 1]);
+        c.beginPath();
+        c.moveTo(x - 14, y + 3);
+        c.lineTo(x + 16, y + 5);
+        c.lineTo(x + 10, y + 11);
+        c.lineTo(x - 10, y + 9);
+        c.closePath();
+        c.fill();
+      }
+      c.restore();
+    }
+  }
+
+  function typSancyNearPts(vw, pathY, off, p) {
+    var xs, ys, i, x, und, lift;
+    xs = [];
+    ys = [];
+    lift = 7 + 5 * (1 - ss(0.3, 0.8, p));
+    for (i = 0; i <= 12; i++) {
+      x = (i / 12) * vw * 1.16 - vw * 0.08 + off;
+      und = Math.sin(i * 0.85) * 5 + Math.sin(i * 1.6) * 2.5;
+      xs.push(x);
+      ys.push(pathY - lift - und);
+    }
+    return [xs, ys];
   }
 
   function sancyVista(c, vw, vh, hy, gain, E, H) {
-    var info = drawTracedVista(c, vw, vh, hy, E, H, 'sancy');
-    var af = info.af, yFloor = info.yFloor, yCrest = info.yCrest;
-    var off = info.off || 0, V = info.V, rng = info.rng, skySpan = info.skySpan;
-    var px0, py0, px1, py1, sag, cx, cy, bestY, bestX, i, pts, x, layers, peakX, peakY;
-    if (af < 0.9 && V) {
-      c.save();
-      c.globalAlpha = 0.25 + 0.7 * ss(0.08, 0.45, af) * (1 - ss(0.82, 0.9, af));
-      /* Pylônes en retrait du bord, pieds sur le versant. */
-      px0 = Math.max(26, 0.13 * vw);
-      py0 = slopeY(V, (px0 - off) / vw, yCrest, yFloor, rng, skySpan);
-      px1 = 0.32 * vw;
-      py1 = slopeY(V, (px1 - off) / vw, yCrest, yFloor, rng, skySpan);
-      sag = Math.abs(px1 - px0) * 0.14;
-      typCablePylon(c, px0, py0, 10 + 2 * af);
-      typCablePylon(c, px1, py1, 11 + 2 * af);
-      typCableCar(c, px0, py0 - 10, px1, py1 - 11, sag);
-      if (af > 0.22 && af < 0.84) {
-        cx = typCableX(px0, px1, 0.46);
-        cy = typCableY(px0, py0 - 10, px1, py1 - 11, sag, 0.46);
-        typCabin(c, cx, cy, 0.3);
+    var p, atSum, pathY, yBot, offHor, offFar, offMid, offNear;
+    var peakH, xPeak, yBaseMid, mid, far, hor, near, farH, horH;
+    var py0, py1, stX, stY, stSc, i;
+    var pylon, cab, sag, cx, tops, yFar, yMid, yNear;
+    var down, stFoot, neveFirs, yFn, ridgeH;
+    p = alpineAf(E, H, vw);
+    if (p < 0) { p = 0; }
+    if (p > 1) { p = 1; }
+    atSum = atAlpineSummit(E, vw);
+    pathY = vistaPathY(E, hy);
+    yBot = Math.max(vh + 8, pathY + 96);
+    offHor = vistaOff(E, 0.06, vw * 0.12);
+    offFar = vistaOff(E, 0.12, vw * 0.18);
+    offMid = vistaOff(E, 0.26, vw * 0.20);
+    offNear = vistaOff(E, 0.06, vw * 0.07);
+
+    yFar = pathY - 36;
+    yMid = pathY - 18;
+    yNear = pathY - 10;
+    py0 = pathY - 8;
+    py1 = pathY - 8;
+
+    if (atSum) {
+      /* 1. Cantal tout au loin, 2. Chaîne des Puys, 3. crêtes du massif, 4. vallée + gare. */
+      typSancyCantalFar(c, vw, pathY - 78, yBot, offHor);
+      typSancyPuysFar(c, vw, pathY - 56, yBot, offFar * 0.5);
+      ridgeH = Math.max(36, (pathY - 24) * 0.42);
+      typSancySummitRidges(c, vw, pathY + 4, ridgeH, yBot, offMid * 0.35);
+      down = typSancySummitDownPts(vw, pathY, offNear);
+      typRidgeClose(c, down[0], down[1], yBot, '#c5d0d8');
+      typRidgeClose(c, down[0], down[1], yBot, 'rgba(236,242,248,.28)');
+      typSancyMontDoreValley(c, vw, pathY, yBot, offNear * 0.2);
+      stX = vw * 0.78 + offMid * 0.1;
+      stFoot = typRidgeYAt(down[0], down[1], stX, yBot);
+      if (stFoot > pathY - 6) { stFoot = pathY - 16; }
+      typSancyStationOnSlope(c, stX, stFoot, vw < 600 ? 0.78 : 0.92);
+      yFar = pathY - 56;
+      yMid = stFoot;
+      yNear = pathY - 8;
+    } else {
+      /* 1. horizon, 2. crête du massif plein cadre, 3. Sancy qui grossit, 4. proche. */
+      horH = Math.max(28, (pathY - 40) * (0.22 + 0.08 * ss(0, 0.9, p)));
+      hor = typSancyHorizonPts(vw, pathY + 4, horH, offHor);
+      typSancyHorizon(c, hor[0], hor[1], yBot);
+
+      farH = Math.max(64, (pathY - 28) * (0.44 + 0.16 * ss(0, 0.9, p)));
+      far = typSancyFarPts(vw, pathY + 6, farH, offFar);
+      typSancyFarCrest(c, far[0], far[1], yBot, p, farH);
+      yFar = typRidgeYAt(far[0], far[1], vw * 0.62 + offFar, yBot);
+
+      peakH = Math.max(88, (pathY - 26) * (0.48 + 0.34 * ss(0, 0.88, p)));
+      xPeak = vw * (0.48 - 0.06 * ss(0, 0.85, p)) + offMid;
+      yBaseMid = pathY + 8;
+      mid = typSancyMidPts(xPeak, yBaseMid, peakH);
+      typSancyMassif(c, mid[0], mid[1], yBot, xPeak, yBaseMid - peakH, p, peakH);
+      yMid = typRidgeYAt(mid[0], mid[1], xPeak, yBot);
+
+      pylon = typSancyPylonLayout(mid[0], mid[1], yBot, xPeak, peakH, p);
+      tops = [];
+      for (i = 0; i < pylon.length; i++) {
+        tops.push([pylon[i].x, pylon[i].foot - pylon[i].h]);
       }
-      c.restore();
-    }
-    if (af > 0.15 && af < 0.8 && V) {
-      bestY = 9; bestX = 0.5;
-      layers = V.layers || [];
-      for (i = 0; i < layers.length; i++) {
-        if (layers[i].k === 'mid') {
-          pts = layers[i].pts;
-          for (x = 0; x < pts.length; x += 2) {
-            if (pts[x + 1] < bestY) { bestY = pts[x + 1]; bestX = pts[x]; }
-          }
+      stX = xPeak - peakH * 0.22;
+      stY = typRidgeYAt(mid[0], mid[1], stX, yBot);
+      stSc = (0.38 + 0.42 * ss(0.05, 0.85, p)) * (vw < 600 ? 0.85 : 1);
+      tops.push([stX, stY - 8.5 * stSc - 3.2 * stSc]);
+
+      for (i = 0; i < tops.length - 1; i++) {
+        sag = Math.max(4, Math.abs(tops[i + 1][0] - tops[i][0]) * 0.08);
+        cx = typSancyCatenary(c, tops[i][0], tops[i][1], tops[i + 1][0], tops[i + 1][1], sag);
+        if (i === 0 && cx) {
+          cab = typQuadPt(tops[i][0], tops[i][1], cx[0], cx[1], tops[i + 1][0], tops[i + 1][1], 0.48);
+          typSancyCabin(c, cab[0], cab[1], 0.55 + 0.7 * ss(0.1, 0.8, p));
         }
       }
-      if (bestY < 9) {
-        peakX = bestX * vw + off;
-        peakY = yCrest + mapY(bestY, rng, skySpan) * (yFloor - yCrest);
-        typSancyStationFar(c, peakX, peakY, 0.13 + 0.05 * af);
+      for (i = 0; i < pylon.length; i++) {
+        typSancyPylon(c, pylon[i].x, pylon[i].foot, pylon[i].h, pylon[i].w);
+      }
+      typSancyStationOnSlope(c, stX, stY, stSc);
+      if (pylon[0]) { py0 = pylon[0].foot; }
+      if (pylon[1]) { py1 = pylon[1].foot; }
+
+      near = typSancyNearPts(vw, pathY, offNear, p);
+      typSancyNear(c, near[0], near[1], yBot, p);
+      yNear = typRidgeYAt(near[0], near[1], vw * 0.4, yBot);
+      if (p < 0.26) {
+        neveFirs = 0.95 * (1 - ss(0.12, 0.26, p));
+        yFn = function (x) { return typRidgeYAt(near[0], near[1], x, pathY); };
+        typFirBandW1(c, vw * 0.02, vw * 0.98, yFn, 21, { step: 16, s0: 0.55 * neveFirs + 0.2, dens: 0.8 * neveFirs, col: '#1c3a28' });
+        typFirBandW1(c, vw * 0.05, vw * 0.7, yFn, 33, { step: 22, s0: 0.42 * neveFirs + 0.15, dens: 0.6 * neveFirs, col: '#163224' });
       }
     }
-  }
 
-  /* ================================================================================================ NIVEAU 3 : PUY MARY */
-  AlpineBuild({
-    id: 'mary', stairs: 'concrete', horizonHaze: 'rgba(255,226,176,.4)', noHorizonBar: true, hideSummitFlag: true,
-    pal: {
-      q: { base: '#6a5a3c', mid: '#3f3326', lip: '#8fae4a', hi: '#d6e88c', dark: '#2a2218' },
-      f: { base: '#6f6048', mid: '#41372b', lip: '#a3b552', hi: '#e2ec9c', dark: '#2c261d' },
-      c: { base: '#756a5c', mid: '#473f38', lip: '#b1b86a', hi: '#e9efb2', dark: '#2d2a26' },
-      k: { base: '#7c7468', mid: '#4c4640', lip: '#b8bb78', hi: '#eef0b8', dark: '#302d2a' }
-    },
-    tileAlpha: 0.75, depthTint: 'rgba(40,28,20,.12)', strataCol: '#2c2418', glow0: 'rgba(255,224,160,.2)', glow1: 'rgba(255,200,130,0)', vig: 'rgba(40,30,50,.16)',
-    rockPal: { hi: '#d3ccbc', mid: '#8d867a', lo: '#4c4740', line: '#26231e', spot: 'rgba(110,100,82,.5)', rim: 'rgba(255,244,214,.55)' },
-    tilePal: ['rgba(40,34,26,.30)', 'rgba(130,118,86,.24)', 'rgba(224,218,184,.16)', 'rgba(20,16,12,.34)'],
-    sky: {
-      stops: [0, '#4c7cc2', 0.45, '#8ab6e0', 0.78, '#f0d8a4', 1, '#ffe8b8'],
-      sun: { x: 0.2, y: 0.74, r: 5.5, disc: '#fff7d6', g0: 'rgba(255,214,140,.5)', g1: 'rgba(255,200,120,0)', glow: 0.7 },
-      clouds: { n: 6, y0: 0.14, y1: 0.5, s0: 0.8, s1: 0.8, top: '#fffaf0', bot: '#f2c9a0', a0: 0.55, a1: 0.3, speed: 0.8 }
-    },
-    bw: function (E, H) { return function (x) { var a = H.af(x); var c = ss(0.45, 0.62, a), f = ss(0.12, 0.3, a) * (1 - c), k = ss(0.86, 0.95, a); c *= (1 - k); return [Math.max(0, 1 - f - c - k), f, c, k]; }; },
-    layers: function (E, H) {
-      /* pas de couche générique : tout le massif nommé est dans maryVista (une bande pâle se lisait comme une mer). */
-      return [];
-    },
-    bgExtra: function (c, vw, vh, hy, gain, E, H) { maryVista(c, vw, vh, hy, gain, E, H); },
-    flora: function (E, H) {
-      var gold = 'rgba(255,220,150,0)';
-      var cfg = { hazeCol: '#c2cdb0', rows: [
-        { step: 16, seed: 14, haze: 0.25, fillTop: '#9fb35e', fillBot: '#6a8448', up: function (x) { return 14 + 5 * E.nz(x / 140, 5); }, dens: function () { return 0; }, size: function () { return 10; }, kind: function () { return 'bush'; } },
-        { step: 18, seed: 25, haze: 0.1, fillTop: '#94ab54', fillBot: '#5f7a44', up: function (x) { return 6 + 3 * E.nz(x / 90, 6); }, dens: function () { return 0; }, size: function () { return 10; }, kind: function () { return 'bush'; } },
-        { step: 22, seed: 36, haze: 0, fillTop: '#85a04c', fillBot: '#566f3e', up: function (x) { return 3; }, dens: function () { return 0; }, size: function () { return 10; }, kind: function () { return 'bush'; } }
-      ] };
-      cfg.lipMix = function (x) {
-        var a = H.af(x), c = ss(0.45, 0.65, a), g = E.mix(E.mix('#7da846', '#a2b04e', c), '#b2b86a', ss(0.7, 0.95, a));
-        return { dens: 0.92 - 0.35 * c, grass: 1.6, fern: 0, heather: 0, bush: 0, broom: 0, flower: 0.2, gcol: E.mix(g, '#3f6a30', 0.2), gcol2: E.mix(g, '#e3ee9a', 0.5), fcol: '#4f9a4a' };
+    if (typeof window !== 'undefined') {
+      window.__bgProbe = {
+        camY: E.cam && E.cam.y,
+        gain: gain,
+        hy: hy,
+        layers: [
+          { kind: 'sancy-far', y: yFar },
+          { kind: 'sancy-mid', y: yMid },
+          { kind: 'sancy-near', y: yNear },
+          { kind: 'sancy-path', y: pathY },
+          { kind: 'sancy-pylon0', y: py0 },
+          { kind: 'sancy-pylon1', y: py1 }
+        ]
       };
-      return cfg;
-    },
-    behind: function (c, xa, xb, bottom, E, H) {
-      rocksBehind(E, H, c, xa, xb, 46, function (x) { var a = H.af(x); return 0.22 + 0.5 * ss(0.3, 0.8, a); }, null, 3.5, 8);
-    },
-    lipExtra: function (c, xa, xb, E, H) {                 // gentianes jaunes et pâquerettes sur la pelouse
-      for (var x = Math.floor(xa / 11) * 11; x < xb + 11; x += 11) {
-        var h = E.hash(x, 330), ty = E.TYPE[x | 0]; if (h > 0.34 || ty === 1 || ty === 4 || ty === 6) { continue; }
-        var gy = E.G[x | 0]; if (!isFinite(gy) || gy < -1e5) { continue; }
-        var tx = x + h * 9, sz = 5.5 + 4 * E.hash(x, 331), sw = Math.sin(E.time * 1.8 + x) * 0.6;
-        c.strokeStyle = '#3f7a32'; c.lineWidth = 0.7; c.beginPath(); c.moveTo(tx, gy); c.lineTo(tx + sw * 0.5, gy - sz); c.stroke();
-        c.fillStyle = '#4f9a3c'; c.beginPath(); c.ellipse(tx - 1.6, gy - sz * 0.35, 1.7, 0.6, -0.5, 0, 7); c.ellipse(tx + 1.6, gy - sz * 0.35, 1.7, 0.6, 0.5, 0, 7); c.fill();
-        if (E.hash(x, 332) > 0.35) {
-          c.fillStyle = '#f2ca2a'; for (var k = 0; k < 5; k++) { var a = k / 5 * 6.283; c.beginPath(); c.ellipse(tx + sw * 0.5 + Math.cos(a) * 1.1, gy - sz + Math.sin(a) * 1.1, 0.8, 0.5, a, 0, 7); c.fill(); }
-          c.fillStyle = '#b8801a'; c.beginPath(); c.arc(tx + sw * 0.5, gy - sz, 0.5, 0, 7); c.fill();
-        }
-      }
-    },
-    props: function (c, xa, xb, E, H) {
-      boardIf(c, E, xa, xb, 52, ['PAS DE', 'PEYROL'], 40, 15, 3.4);
-      boardIf(c, E, xa, xb, 98, ['1 589 m'], 34, 11, 3.4, 28);
-      var q = E.crumbs[0]; if (q) { boardIf(c, E, xa, xb, q.x0 - 120, ['RESTEZ SUR', 'LE SENTIER'], 60, 24, 3.2, 41); }
-    },
-    finds: FINDS,
-    summit: function (c, sx, sy, E) {
-      tableOrient(c, E, sx + 54, sy);
-      typMaryCross(c, sx + 78, sy, 1);
-      auditSeat('mary-table', sx + 54, sy, sy);
     }
-  });
-
-  /* ================================================================ décor des deux niveaux du puy de Dôme */
-  function domeLayers(E, H, shift, mist, warm) {
-    var sh = shift || 0, hz = mist ? 0.5 : 0.35;
-    function T(u) { return u + sh; }
-    var monts = peaks([[T(110), 36, 80, 60, 1.25], [T(190), 44, 40, 60, 1.1], [T(300), 50, 80, 100, 1.3], [T(470), 34, 90, 80, 1.3], [T(640), 40, 80, 100, 1.3]], nzf(E, 60, 7, 12));
-    var limagne = function (u) { return 5 + 2 * E.nz(u / 70, 8); };
-    var chaine = function (u) {
-      u += sh; var y = 11 + 4 * E.nz(u / 60, 9);
-      y = Math.max(y, 11 + coneAt(u, 150, 30, 50, 10, 7, 0), 11 + domeAt(u, 250, 27, 38), 11 + coneAt(u, 340, 34, 54, 10, 8, 0), 11 + coneAt(u, 364, 24, 30, 6, 4, 0),
-        11 + coneAt(u, 480, 27, 42, 8, 6, -1), 11 + coneAt(u, 536, 29, 46, 9, 7, 1), 11 + coneAt(u, 650, 25, 42, 7, 5, 0), 11 + coneAt(u, 760, 29, 48, 8, 6, 0), 11 + coneAt(u, 880, 26, 44, 8, 5, 0));
-      return y;
-    };
-    var proches = function (u) {
-      u += sh; var y = 10 + 4 * E.nz(u / 50, 10);
-      return Math.max(y, 10 + coneAt(u, 220, 46, 76, 11, 7, 1), 10 + domeAt(u, 400, 34, 70), 10 + coneAt(u, 600, 40, 70, 9, 6, 0), 10 + domeAt(u, 800, 32, 64), 10 + coneAt(u, 980, 42, 74, 10, 6, -1));
-    };
-    var bois = function (u) { u += sh; return 14 + 12 * E.nz(u / 38, 11) + 6 * E.nz(u / 13, 12); };
-    var trk = function (x, h) { return h < 0.3 ? 'beech' : 'fir'; };
-    var hzc = mist ? '#c8d2da' : '#b6c8d8';
-    return [
-      { par: 0.012, y: 8, hmax: 60, fn: monts, c0: mist ? '#b4c0cf' : '#a5b6d3', c1: mist ? '#d0d8e0' : '#c5d1e2', edge: 'rgba(255,255,255,.35)', gk: 0.005 },
-      { par: 0.02, y: 12, hmax: 14, fn: limagne, c0: mist ? '#c8d3d6' : '#b8cbd4', c1: mist ? '#dde3e2' : '#d4dedc', gk: 0.01, step: 4 },
-      { par: 0.05, y: 18, hmax: 56, fn: chaine, c0: mist ? '#7fa089' : '#6b9a76', c1: mist ? '#b3c7b8' : '#a1bfa7', edge: warm ? 'rgba(255,248,210,.55)' : 'rgba(240,250,230,.45)', haze: mist ? 'rgba(214,224,228,.4)' : 'rgba(210,228,238,.28)', gk: 0.02,
-        trees: { step: 10, seed: 31, dens: 0.8, maxH: 18, size: 11, haze: hz + 0.1, hazeCol: hzc, kind: trk } },
-      { par: 0.1, y: 30, hmax: 66, fn: proches, c0: mist ? '#58896a' : '#4e8a5a', c1: mist ? '#86a891' : '#7da98a', edge: warm ? 'rgba(255,248,200,.55)' : 'rgba(235,250,225,.45)', haze: mist ? 'rgba(206,216,222,.34)' : 'rgba(200,222,236,.2)', gk: 0.05,
-        trees: { step: 9, seed: 33, dens: 0.85, maxH: 30, size: 15, haze: hz, hazeCol: hzc, kind: trk } },
-      { par: 0.2, y: 46, hmax: 40, fn: bois, c0: mist ? '#3f7050' : '#397a4a', c1: mist ? '#2a5240' : '#27553c', gk: 0.09,
-        trees: { step: 9, seed: 35, dens: 0.92, maxH: 26, size: 20, haze: hz * 0.55, hazeCol: hzc, kind: trk } }
-    ];
-  }
-  function domeBw(E, H) {   // q : sous-bois ombragé, f : pelouse sèche, c : éboulis, k : roche claire
-    return function (x) { var a = E.L.altitudeStart + H.af(x) * ((E.L.altitudeEnd || E.L.altitude) - E.L.altitudeStart), sh = H.shade(x), f = (1 - sh) * ss(1180, 1260, a) * (1 - ss(1320, 1390, a)), c = ss(1320, 1400, a), k = ss(1400, 1450, a); c *= (1 - k); var q = Math.max(0, 1 - f - c - k); return [q, f, c, k]; };
-  }
-  var DOME_ROCK = { hi: '#dcd9cf', mid: '#9c988e', lo: '#59564f', line: '#26241f', spot: 'rgba(70,66,60,.5)', rim: 'rgba(255,248,224,.55)' };
-  var DOME_TILE = ['rgba(40,34,28,.28)', 'rgba(140,130,104,.22)', 'rgba(228,222,190,.15)', 'rgba(20,16,12,.32)'];
-  var DOME_PAL = {
-    q: { base: '#5a4630', mid: '#33281e', lip: '#5f9a42', hi: '#c0e486', dark: '#231a14' },
-    f: { base: '#7a6240', mid: '#463725', lip: '#bfb458', hi: '#efe8a0', dark: '#2d2418' },
-    c: { base: '#706656', mid: '#41392f', lip: '#a99f72', hi: '#ddd5a9', dark: '#2c261f' },
-    k: { base: '#8a8579', mid: '#524e46', lip: '#b3ad88', hi: '#e8e2bb', dark: '#35322c' }
-  };
-  function domeFlora(E, H, opt) {
-    var alt = function (x) { return E.L.altitudeStart + H.af(x) * ((E.L.altitudeEnd || E.L.altitude) - E.L.altitudeStart); };
-    var tl = function (x) { return 1 - 0.88 * ss(1180, 1360, alt(x)); };           // la forêt s'éclaircit et rapetisse progressivement avec l'altitude (limite des arbres)
-    var fo = function (x) { return H.shade(x) * tl(x); };
-    var open = function (x) { return (1 - H.shade(x) * 0.9) * (1 - ss(1300, 1405, alt(x))); };      // pelouse et lande : rare au-delà de 1 300 m
-    var kindB = function (x, h) { return h < 0.85 * (1 - ss(1090, 1260, alt(x))) ? 'beech' : 'fir'; };   // hêtres en bas, sapins plus haut
-    var hs = function (x) { return (34 + 9 * E.nz(x / 120, 5)) * (0.55 + 0.45 * tl(x)); };
-    var cfg = { hazeCol: opt.haze, rows: [
-      { step: 16, seed: 14, haze: 0.38, fillTop: '#2f6a46', fillBot: '#1c4434', autumn: 0.86, up: function (x) { return 24 * fo(x) + 1; }, dens: function (x) { return 0.96 * fo(x); }, size: function (x) { return hs(x) * 1.15; }, kind: kindB },
-      { step: 18, seed: 25, haze: 0.16, fillTop: '#2b6444', fillBot: '#1b4030', autumn: 0.86, up: function (x) { return 11 * fo(x) + 1; }, dens: function (x) { return 0.92 * fo(x); }, size: hs, kind: kindB },
-      { step: 24, seed: 36, haze: 0, sink: 5, fillTop: '#26543a', fillBot: '#173828', autumn: 0.84, up: function () { return 3; }, dens: function (x) { return 0.85 * fo(x); }, size: function (x) { return hs(x) * 0.92; }, kind: kindB },
-      { step: 12, seed: 52, haze: 0, sink: 3, fillTop: '#5a7a40', fillBot: '#33502e', up: function () { return 3; }, dens: function (x) { return 0.55 * open(x); }, size: function (x) { return 12 + 3 * Math.sin(x / 55); }, kind: function (x, h) { return h < 0.55 ? 'bush' : 'heather'; }, bushPal: { dark: '#2a4a30', base: '#4b7a48', lite: '#9ab868' } }
-    ] };
-    cfg.lipMix = function (x) {
-      var w = domeBw(E, H)(x), q = w[0], f = w[1], c = w[2], k = w[3], o = open(x);
-      var g = E.mix(E.mix('#5f9a42', '#bfb458', f), '#a99f72', c);
-      return { dens: 0.85 * q + 0.85 * f + 0.3 * c + 0.12 * k, grass: 1.3, fern: 0.8 * fo(x), heather: 0.7 * f * o, bush: 0.25 * f * o, broom: 0.1 * f, flower: 0.25 * f, gcol: E.mix(g, '#3f6a30', 0.2), gcol2: E.mix(g, '#e0e890', 0.5), fcol: '#4f9a4a' };
-    };
-    return cfg;
-  }
-  function domeScree(c, xa, xb, E, H) {         // éboulis de domite sur les talus du haut
-    rocksBehind(E, H, c, xa, xb, 40, function (x) { var a = E.L.altitudeStart + H.af(x) * ((E.L.altitudeEnd || E.L.altitude) - E.L.altitudeStart); return 0.62 * ss(1250, 1370, a) + 0.05; }, null, 3.4, 9);
-  }
-  function bendSign(c, E, x, n) {   // balise numérotée d'un virage des Muletiers
-    var gy = E.G[Math.max(0, Math.min(E.len, x | 0))]; if (!isFinite(gy)) { return; }
-    c.fillStyle = '#3a2616'; c.fillRect(x - 0.9, gy - 17, 1.8, 17.5);
-    c.beginPath(); A.rrect(c, x - 5.2, gy - 21, 10.4, 7.4, 1.2); c.fillStyle = '#f6efd8'; c.fill(); c.lineWidth = 0.7; c.strokeStyle = '#2a1810'; c.stroke();
-    c.fillStyle = '#1e4f8a'; c.fillRect(x - 4.4, gy - 20.2, 8.8, 1.6);
-    c.fillStyle = '#2a1810'; c.font = 'bold 5px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(n), x, gy - 16.1);
-  }
-  /* Temple de Mercure : ruines à terrasses et murs de soutènement en trachyte,
-     juste sous le site TDF — pas un temple grec reconstitué à colonnes. Décoratif, non solide. */
-  function mercureRuins(c, E, x0, sy, w) {
-    var x, i, j, tw = w || 64, h1 = 9, h2 = 13, h3 = 26;
-    c.fillStyle = 'rgba(28, 16, 14, .32)';
-    c.beginPath(); c.ellipse(x0 + tw * 0.52, sy + 1.2, tw * 0.58, 3.0, 0, 0, 7); c.fill();
-    function course(x, y, ww, hh, lite, dark) {
-      c.fillStyle = A.grad(c, 0, y, 0, y + hh, [0, lite, 1, dark]);
-      c.fillRect(x, y, ww, hh);
-      c.strokeStyle = 'rgba(28, 18, 12, .6)'; c.lineWidth = 0.55; c.strokeRect(x, y, ww, hh);
-      c.fillStyle = 'rgba(28, 16, 12, .4)';
-      for (j = 1; j < 4; j++) { c.fillRect(x, y + j * hh / 4, ww, 0.55); }
-      for (i = 7; i < ww - 2; i += 7) { c.fillRect(x + i + ((y | 0) % 2) * 3, y, 0.5, hh); }
-    }
-    /* terrasses en trachyte sombre, à l'échelle du randonneur */
-    course(x0, sy - h1, tw * 0.96, h1, '#8a7460', '#4a382c');
-    course(x0 + 6, sy - h1 - h2, tw * 0.74, h2, '#7a6550', '#3e2e24');
-    course(x0 + 16, sy - h1 - h2 - 8, tw * 0.46, 8, '#9a8470', '#534033');
-    /* murs de soutènement en gradins, coin SE plus élevé */
-    course(x0 + tw * 0.58, sy - h3, 9, h3, '#6e5848', '#3a2a20');
-    course(x0 + tw * 0.58 + 8.2, sy - (h3 + 8), 7.2, h3 + 8, '#7a6450', '#403028');
-    /* vestiges d'enceinte, bas, sans colonnes */
-    c.fillStyle = '#6a5848';
-    c.fillRect(x0 + 4, sy - h1 - 11, 4.4, 11);
-    c.fillRect(x0 + 22, sy - h1 - 8, 3.6, 8);
-    c.fillStyle = '#8a7460'; c.fillRect(x0 + 3.4, sy - h1 - 12.2, 5.6, 1.5);
-    /* blocs tombés */
-    [[x0 + 10, 6.2, 3.2], [x0 + 34, 5.2, 2.6], [x0 + tw * 0.82, 5.8, 3]].forEach(function (b) {
-      c.fillStyle = '#6e5848'; c.beginPath(); c.moveTo(b[0], sy); c.lineTo(b[0] + b[1], sy - 0.5); c.lineTo(b[0] + b[1] - 0.5, sy - b[2]); c.lineTo(b[0] + 0.4, sy - b[2] + 0.4); c.closePath(); c.fill();
-      c.strokeStyle = '#2a1c14'; c.lineWidth = 0.5; c.stroke();
-    });
-  }
-  /* Émetteur TDF : pylône treillis massif rouge et blanc, semelle béton, bâtiment technique. */
-  function tdfMast(c, E, x, base, h) {
-    h = h || 240;
-    var baseW = 15, topW = 3.4, bandH = 20, nBand = Math.ceil(h / bandH), i, y, y1, t0, t1, w0, w1, col, bw, bh;
-    c.fillStyle = 'rgba(28, 16, 14, .34)';
-    c.beginPath(); c.ellipse(x, base + 1.4, 18, 2.8, 0, 0, 7); c.fill();
-    /* semelle béton */
-    c.fillStyle = '#8a8680'; c.fillRect(x - 16, base - 2.6, 32, 2.6);
-    c.fillStyle = '#6a6862'; c.fillRect(x - 17, base - 0.6, 34, 1.3);
-    c.strokeStyle = '#3a3834'; c.lineWidth = 0.5; c.strokeRect(x - 16, base - 2.6, 32, 2.6);
-    /* treillis ouvert : montants et croisillons peints rouge / blanc, le ciel transparaît */
-    function mastW(yy) {
-      var tt = Math.max(0, Math.min(1, (base - yy) / h));
-      return baseW * (1 - tt) + topW * tt;
-    }
-    function bandCol(yy) {
-      return (Math.floor((base - yy) / bandH) % 2 === 0) ? '#c42828' : '#f2eee8';
-    }
-    function strokeLeg(x0, y0, x1, y1, thick) {
-      var steps = Math.max(8, Math.round(Math.abs(y1 - y0) / 4)), s, yy0, yy1, xx0, xx1;
-      for (s = 0; s < steps; s++) {
-        yy0 = y0 + (y1 - y0) * s / steps;
-        yy1 = y0 + (y1 - y0) * (s + 1) / steps;
-        xx0 = x0 + (x1 - x0) * s / steps;
-        xx1 = x0 + (x1 - x0) * (s + 1) / steps;
-        c.strokeStyle = bandCol((yy0 + yy1) / 2);
-        c.lineWidth = thick;
-        c.lineCap = 'butt';
-        c.beginPath(); c.moveTo(xx0, yy0); c.lineTo(xx1, yy1); c.stroke();
-        c.strokeStyle = 'rgba(20,12,10,.55)';
-        c.lineWidth = Math.max(0.45, thick * 0.22);
-        c.beginPath(); c.moveTo(xx0, yy0); c.lineTo(xx1, yy1); c.stroke();
-      }
-    }
-    /* 4 montants massifs */
-    strokeLeg(x - baseW, base, x - topW, base - h, 2.4);
-    strokeLeg(x + baseW, base, x + topW, base - h, 2.4);
-    strokeLeg(x - baseW * 0.38, base, x - topW * 0.35, base - h, 1.6);
-    strokeLeg(x + baseW * 0.38, base, x + topW * 0.35, base - h, 1.6);
-    /* barreaux et croix de Saint-André */
-    for (i = 0; i <= nBand; i++) {
-      y = base - i * bandH;
-      w0 = mastW(y);
-      c.strokeStyle = bandCol(y - 1);
-      c.lineWidth = 1.35;
-      c.beginPath(); c.moveTo(x - w0, y); c.lineTo(x + w0, y); c.stroke();
-      c.strokeStyle = 'rgba(20,12,10,.5)'; c.lineWidth = 0.4;
-      c.beginPath(); c.moveTo(x - w0, y); c.lineTo(x + w0, y); c.stroke();
-      if (i < nBand) {
-        y1 = base - (i + 1) * bandH;
-        w1 = mastW(y1);
-        c.strokeStyle = bandCol(y - bandH * 0.5);
-        c.lineWidth = 1.15;
-        c.beginPath();
-        c.moveTo(x - w0, y); c.lineTo(x + w1, y1);
-        c.moveTo(x + w0, y); c.lineTo(x - w1, y1);
-        c.stroke();
-      }
-    }
-    /* lanterne sommitale */
-    c.fillStyle = '#e8e4dc'; c.fillRect(x - 1.5, base - h - 10, 3, 10);
-    c.fillStyle = '#d43030'; c.beginPath(); c.arc(x, base - h - 12, 2.4, 0, 7); c.fill();
-    c.fillStyle = '#fff6c8'; c.beginPath(); c.arc(x, base - h - 12, 1.1, 0, 7); c.fill();
-    /* bâtiment technique, planté devant le pied du pylône */
-    bw = 28; bh = 15;
-    c.fillStyle = A.grad(c, x - bw / 2, 0, x + bw / 2, 0, [0, '#d8d4cc', 1, '#9a968e']);
-    c.fillRect(x - bw / 2, base - bh, bw, bh);
-    c.fillStyle = '#6a6864'; c.fillRect(x - bw / 2 - 0.8, base - bh - 1.6, bw + 1.6, 1.8);
-    c.strokeStyle = '#2a2824'; c.lineWidth = 0.6; c.strokeRect(x - bw / 2, base - bh, bw, bh);
-    c.fillStyle = '#3a4048'; c.fillRect(x - bw / 2 + 2.4, base - bh + 2.6, 4.2, 5.4);
-    c.fillStyle = '#2a3036'; c.fillRect(x + 0.6, base - bh + 2.8, 5.2, 3.0);
-    c.fillStyle = '#5a5854'; c.fillRect(x + bw / 2 - 6.2, base - 7, 3.6, 7);
-    c.fillStyle = '#c4c0b8'; c.fillRect(x + bw / 2 - 5.4, base - 4.2, 0.7, 0.7);
-    c.strokeStyle = '#6a6e74'; c.lineWidth = 0.8;
-    c.beginPath(); c.arc(x - bw / 2 - 2.0, base - bh - 4.6, 3.4, 0.25, 5.5); c.stroke();
-    c.beginPath(); c.moveTo(x - bw / 2, base - bh); c.lineTo(x - bw / 2 - 1.2, base - bh - 3.4); c.stroke();
-    c.beginPath(); c.arc(x + 4.0, base - bh - 2.8, 2.0, 0.2, 5.2); c.stroke();
-  }
-  function tdfFoot(c, E, x, base, h) { tdfMast(c, E, x, base, h); }
-  function templeDome(c, E, sx, sy, withTemple) {
-    // arrivée des Muletiers : esplanade, ruines du Temple de Mercure à terrasses,
-    // pied de l'émetteur TDF, gare du Panoramique à droite
-    var x;
-    var hg = A.grad(c, 0, sy - 40, 0, sy, [0, 'rgba(130,160,104,.5)', 1, 'rgba(80,108,64,.85)']);
-    c.fillStyle = hg; c.beginPath(); c.moveTo(sx + 80, sy); c.quadraticCurveTo(sx + 120, sy - 40, sx + 150, sy - 38); c.quadraticCurveTo(sx + 175, sy - 36, sx + 192, sy); c.closePath(); c.fill();
-    paverRow(c, sx - 14, sx + 190, sy - 0.2, 3.2, '#bcb6a8', '#8e887c');
-    c.fillStyle = '#5c564d'; c.fillRect(sx - 14, sy + 2.8, 204, 0.7);
-    mercureRuins(c, E, sx + 54, sy, 62);
-    tdfMast(c, E, sx + 128, sy, 250);
-    // garde-corps de l'esplanade, entre le relais et la gare
-    c.strokeStyle = '#3c3f46'; c.lineWidth = 0.55;
-    for (x = sx + 148; x < sx + 210; x += 7) { c.beginPath(); c.moveTo(x, sy - 0.2); c.lineTo(x, sy - 8); c.stroke(); }
-    c.beginPath(); c.moveTo(sx + 148, sy - 8); c.lineTo(sx + 208, sy - 8); c.moveTo(sx + 148, sy - 4.6); c.lineTo(sx + 208, sy - 4.6); c.stroke();
-    gareBuilding(c, E, sx + 150, 76, 20, sy, false, 0);
-    tableOrient(c, E, sx + 146, sy);
   }
 
-  /* ============================================================ NIVEAU 4 : PUY DE DÔME — SENTIER DES MULETIERS */
-  AlpineBuild({
-    id: 'muletiers', stairs: 'stone', horizonHaze: 'rgba(235,240,232,.45)',
-    summitBoardX: -48, summitBoardW: 44, summitBoardSize: 3.2,
-    pal: DOME_PAL, tileAlpha: 0.75, depthTint: 'rgba(36,26,18,.12)', strataCol: '#2c2418', glow0: 'rgba(255,244,214,.14)', glow1: 'rgba(255,240,200,0)', vig: 'rgba(30,30,40,.14)',
-    rockPal: DOME_ROCK, tilePal: DOME_TILE,
-    sky: {
-      stops: [0, '#2f78d0', 0.45, '#6fb2ec', 0.82, '#cfe6f4', 1, '#f2f1de'],
-      sun: { x: 0.74, y: 0.34, r: 6, disc: '#fffbea', g0: 'rgba(255,248,214,.6)', g1: 'rgba(255,248,210,0)', glow: 0.9 },
-      clouds: { n: 5, y0: 0.12, y1: 0.45, s0: 0.7, s1: 0.8, top: '#ffffff', bot: '#dde9f4', a0: 0.5, a1: 0.35, speed: 0.7 }
-    },
-    bw: domeBw,
-    layers: function (E, H) { return domeLayers(E, H, 0, false, true); },
-    flora: function (E, H) { return domeFlora(E, H, { haze: '#b6c8d8' }); },
-    behind: function (c, xa, xb, bottom, E, H) { domeScree(c, xa, xb, E, H); },
-    props: function (c, xa, xb, E, H) {
-      boardIf(c, E, xa, xb, 52, ['COL DE', 'CEYSSAT'], 40, 15, 3.4);
-      boardIf(c, E, xa, xb, 98, ['MULETIERS'], 34, 11, 3.1, 28);
-      var tr = E.feat.trains[0], sx = E.feat.summitX, i, n = 15;
-      if (tr) { boardIf(c, E, xa, xb, tr.x0 - 150, ['ATTENTION', 'AU TRAIN'], 50, 15, 3.1, 35); }
-      for (i = 0; i < n; i++) {                               // 15 virages répartis sur la montée (le passage à niveau est placé à mi-parcours pour le jeu)
-        var bx = 270 + (sx - 330 - 270) * i / (n - 1);
-        if (tr && bx > tr.x0 - 40 && bx < tr.x1 + 40) { bx = tr.x1 + 90; }
-        if (bx > xa - 12 && bx < xb + 12) { bendSign(c, E, bx, i + 1); }
-      }
-    },
-    finds: FINDS,
-    summit: function (c, sx, sy, E) { templeDome(c, E, sx, sy, false); }
-  });
-
-  /* ============================================================ NIVEAU 6 : PUY DE DÔME — CHEMIN DES CHÈVRES (brume) */
-  function paverRow(c, x0, x1, y, h, a, b) {   // dalles de pierre claires, joints décalés
-    c.fillStyle = a; c.fillRect(x0, y, x1 - x0, h);
-    c.fillStyle = b; c.fillRect(x0, y, x1 - x0, 0.5);
-    for (var x = x0 + 5; x < x1; x += 9) { c.fillRect(x, y + 0.5, 0.45, h - 0.5); }
-  }
-  function metalRoof(c, x0, x1, yEave, rise, lite, dark) {   // toit métallique gris à deux pans, joints debout
-    var xm = (x0 + x1) / 2 + (x1 - x0) * 0.08;
-    c.fillStyle = lite; c.beginPath(); c.moveTo(x0, yEave); c.lineTo(xm, yEave - rise); c.lineTo(x1, yEave); c.closePath(); c.fill();
-    c.fillStyle = dark; c.beginPath(); c.moveTo(xm, yEave - rise); c.lineTo(x1, yEave); c.lineTo(xm + (x1 - xm) * 0.62, yEave); c.closePath(); c.fill();
-    c.strokeStyle = 'rgba(40,46,56,.35)'; c.lineWidth = 0.35;
-    for (var q = 1; q < 6; q++) { var fx = x0 + (xm - x0) * q / 6; c.beginPath(); c.moveTo(fx, yEave - rise * (q / 6)); c.lineTo(fx - (q / 6) * 0 , yEave); c.stroke(); }
-    c.strokeStyle = '#4c535d'; c.lineWidth = 0.7; c.beginPath(); c.moveTo(x0, yEave); c.lineTo(xm, yEave - rise); c.lineTo(x1, yEave); c.stroke();
-  }
-  function gareBuilding(c, E, bx, bw, wallH, sy, withDoor, k) {
-    var t = E.time, x, by = sy - wallH;
-    // soubassement : mur de pierre sombre
-    var baseH = 6;
-    c.fillStyle = A.grad(c, 0, sy - baseH, 0, sy, [0, '#5b564f', 1, '#3b3834']); c.fillRect(bx, sy - baseH, bw, baseH);
-    c.fillStyle = 'rgba(20,18,16,.55)'; c.fillRect(bx, sy - baseH + 2, bw, 0.4); c.fillRect(bx, sy - baseH + 4, bw, 0.4);
-    for (x = bx + 4; x < bx + bw; x += 9) { c.fillRect(x, sy - baseH, 0.4, 2); c.fillRect(x + 4, sy - baseH + 2, 0.4, 2); c.fillRect(x + 1, sy - baseH + 4, 0.4, 2); }
-    // murs vitrés : verre sombre, poteaux de bois
-    var gy0 = sy - wallH, gh = wallH - baseH;
-    c.fillStyle = A.grad(c, 0, gy0, 0, gy0 + gh, [0, '#46586a', 1, '#222a34']); c.fillRect(bx, gy0, bw, gh);
-    c.fillStyle = 'rgba(180,205,226,.22)'; for (x = bx + 3; x < bx + bw - 6; x += 15) { c.beginPath(); c.moveTo(x, gy0); c.lineTo(x + 4, gy0); c.lineTo(x + 1.5, gy0 + gh); c.lineTo(x - 2.5, gy0 + gh); c.closePath(); c.fill(); }
-    c.fillStyle = '#4a3624'; for (x = bx; x <= bx + bw - 1; x += 10) { c.fillRect(x, gy0, 1.5, gh); }
-    c.fillStyle = '#3a2a1c'; c.fillRect(bx, gy0 + gh * 0.45, bw, 0.9);
-    if (withDoor) {
-    // entrée vitrée (là où le randonneur disparaît), lueur chaude
-    var ex = bx + 26, ew = 16, eh = 20;
-    c.fillStyle = A.grad(c, 0, sy - eh, 0, sy, [0, '#ffe7a8', 1, '#c98c3c']); c.fillRect(ex, sy - eh, ew, eh);
-    c.fillStyle = 'rgba(255,246,214,' + (0.4 + 0.25 * Math.sin(t * 2) + k * 0.3) + ')'; c.fillRect(ex + 1.6, sy - eh + 1.6, ew - 3.2, eh - 3.2);
-    c.strokeStyle = '#2a2622'; c.lineWidth = 0.8; c.strokeRect(ex, sy - eh, ew, eh); c.beginPath(); c.moveTo(ex + ew / 2, sy - eh); c.lineTo(ex + ew / 2, sy); c.stroke();
-    c.fillStyle = '#4a3624'; c.fillRect(ex - 2, sy - eh - 2, ew + 4, 2.4);
+  function typSancyPylonLayout(xs, ys, yBot, xPeak, peakH, p) {
+    var i, fr, px, foot, hBase, out, list;
+    list = [0.12, 0.42, 0.68];
+    out = [];
+    hBase = Math.max(16, peakH * (0.16 + 0.04 * ss(0, 0.7, p)));
+    for (i = 0; i < list.length; i++) {
+      fr = list[i];
+      px = xPeak - peakH * (1.15 - 0.92 * fr);
+      foot = typRidgeYAt(xs, ys, px, yBot);
+      out.push({
+        x: px,
+        foot: foot,
+        h: hBase * (1.05 - 0.45 * fr),
+        w: Math.max(3.2, hBase * (0.42 - 0.16 * fr))
+      });
     }
-    // toits métalliques gris à pans multiples (3 volumes de hauteurs différentes)
-    var rl = '#a6adb6', rd = '#767d87';
-    metalRoof(c, bx + 78, bx + bw + 6, by + 0.5, 12, rl, rd);
-    metalRoof(c, bx - 6, bx + 66, by + 0.5, 9, rl, rd);
-    metalRoof(c, bx + 30, bx + 100, by - 6, 8, '#b4bac2', '#858c96');
-    c.fillStyle = '#4c535d'; c.fillRect(bx - 6, by + 0.2, bw + 12, 1.1);
+    return out;
   }
-  window.GareArt = { building: gareBuilding, paver: paverRow, roof: metalRoof };   // réutilisé par la cinématique du voyage en train (cine.js)
-  function gareDraw(c, E, sx, sy) {
-    // Gare du sommet du Panoramique des Dômes : bâtiment bas et large, toits métalliques gris à plusieurs pans,
-    // murs vitrés à poteaux de bois sombre sur un soubassement de pierre sombre, esplanade dallée avec garde-corps (d'après la photo de référence)
-    var t = E.time, k = E.state === 'won' ? Math.min(1, E.wonT / 2.4) : 0;
-    var bx = sx + 118, bw = 130, wallH = 22, by = sy - wallH, i, x;
-    // pelouse du puy derrière le bâtiment
-    var hg = A.grad(c, 0, sy - 54, 0, sy, [0, 'rgba(120,150,96,.55)', 1, 'rgba(70,100,60,.9)']);
-    c.fillStyle = hg; c.beginPath(); c.moveTo(sx + 10, sy); c.quadraticCurveTo(sx + 50, sy - 48, sx + 115, sy - 46); c.quadraticCurveTo(sx + 175, sy - 44, sx + 195, sy); c.closePath(); c.fill();
-    mercureRuins(c, E, sx + 24, sy, 58);
-    tdfMast(c, E, sx + 94, sy, 250);
-    // voie à crémaillère qui arrive au quai (à gauche du bâtiment)
-    c.fillStyle = '#7d786e'; c.fillRect(sx - 30, sy - 0.2, 60, 3);
-    c.strokeStyle = '#3a3836'; c.lineWidth = 0.9; c.beginPath(); c.moveTo(sx - 30, sy - 0.6); c.lineTo(sx + 30, sy - 0.6); c.stroke();
-    c.strokeStyle = '#c4c8cc'; c.lineWidth = 0.5; c.beginPath(); c.moveTo(sx - 30, sy - 1.2); c.lineTo(sx + 30, sy - 1.2); c.stroke();
-    c.fillStyle = '#4a4540'; for (x = sx - 28; x < sx + 28; x += 6) { c.fillRect(x, sy - 0.2, 2.2, 1.6); }
-    // esplanade dallée
-    paverRow(c, sx + 28, sx + 220, sy - 0.2, 3.2, '#b9b4a8', '#8c877c');
-    c.fillStyle = '#5c564d'; c.fillRect(sx + 28, sy + 2.8, 192, 0.7);
-    // garde-corps de l'esplanade
-    c.strokeStyle = '#3c3f46'; c.lineWidth = 0.55;
-    for (x = sx + 112; x < sx + 148; x += 7) { c.beginPath(); c.moveTo(x, sy - 0.2); c.lineTo(x, sy - 8); c.stroke(); }
-    c.beginPath(); c.moveTo(sx + 112, sy - 8); c.lineTo(sx + 148, sy - 8); c.moveTo(sx + 112, sy - 4.6); c.lineTo(sx + 148, sy - 4.6); c.stroke();
-    gareBuilding(c, E, bx, bw, wallH, sy, true, k);
-    E.board(c, sx + 188, sy - 26, 40, 14, ['GARE DU', 'SOMMET'], 3.4);
-    E.board(c, sx - 40, sy - 30, 36, 11, [String(E.L.altitudeEnd || E.L.altitude).replace(/(\d)(\d{3})$/, '$1 $2') + ' m'], 3.4);
+
+  function typSancySummitDownPts(vw, pathY, off) {
+    var xs, ys, i, x, y;
+    xs = [];
+    ys = [];
+    /* Versant neigeux, légèrement plus bas à gauche (vallée) et à droite (gare), toujours au-dessus du sentier. */
+    for (i = 0; i <= 10; i++) {
+      x = -vw * 0.08 + (i / 10) * vw * 1.16 + (off || 0) * 0.1;
+      if (i <= 2) { y = pathY - 6; }
+      else if (i === 3) { y = pathY - 4; }
+      else if (i === 4) { y = pathY - 8; }
+      else if (i === 5) { y = pathY - 7; }
+      else if (i === 7) { y = pathY - 16; }
+      else if (i === 8) { y = pathY - 20; }
+      else { y = pathY - 8; }
+      xs.push(x);
+      ys.push(y);
+    }
+    return [xs, ys];
   }
-  AlpineBuild({
-    id: 'chevres', stairs: 'wood', summitReplace: true, horizonHaze: 'rgba(222,229,232,.55)',
-    pal: DOME_PAL, tileAlpha: 0.75, depthTint: 'rgba(34,32,36,.14)', strataCol: '#262420', glow0: 'rgba(240,244,250,.1)', glow1: 'rgba(240,244,250,0)', vig: 'rgba(30,36,50,.2)',
-    rockPal: DOME_ROCK, tilePal: DOME_TILE,
-    sky: {
-      stops: [0, '#6a8aaf', 0.5, '#a3b7c8', 1, '#dfe5e8'],
-      sun: { x: 0.7, y: 0.4, r: 7, disc: '#fffdf3', dAlpha: 0.7, g0: 'rgba(255,252,236,.4)', g1: 'rgba(255,252,236,0)', glow: 0.8 },
-      clouds: { n: 7, y0: 0.1, y1: 0.55, s0: 0.9, s1: 0.9, top: '#f4f6f8', bot: '#b9c4cf', a0: 0.6, a1: 0.35, speed: 1.1 }
-    },
-    bw: domeBw,
-    layers: function (E, H) { return domeLayers(E, H, 420, true, false); },
-    flora: function (E, H) { return domeFlora(E, H, { haze: '#c8d2da' }); },
-    behind: function (c, xa, xb, bottom, E, H) {
-      domeScree(c, xa, xb, E, H);
-    },
-    props: function (c, xa, xb, E, H) {
-      boardIf(c, E, xa, xb, 52, ['COL DE', 'CEYSSAT'], 38, 15, 3.4);
-      boardIf(c, E, xa, xb, 96, ['CHEMIN DES', 'CHÈVRES'], 36, 15, 2.9, 33);
-      var tr = E.feat.trains[0]; if (tr) { boardIf(c, E, xa, xb, tr.x0 - 120, ['ATTENTION', 'AU TRAIN'], 50, 15, 3.1, 35); }
-      // fontaine de pierre dans la clairière (zone ensoleillée)
-      var fx = 0; E.feat.hints.forEach(function (h) { if (h.id === 'sun') { fx = h.x + 320; } });
-      if (fx && fx > xa - 20 && fx < xb + 20) {
-        var gy = E.G[fx | 0];
-        c.fillStyle = 'rgba(20,20,24,.25)'; c.beginPath(); c.ellipse(fx, gy + 0.5, 12, 1.8, 0, 0, 7); c.fill();
-        c.fillStyle = A.grad(c, fx - 10, 0, fx + 10, 0, [0, '#a4a094', 1, '#6f6c62']); c.fillRect(fx - 10, gy - 7, 20, 7.6); c.strokeStyle = '#2a2824'; c.lineWidth = 0.6; c.strokeRect(fx - 10, gy - 7, 20, 7.6);
-        c.fillStyle = '#4e86a8'; c.fillRect(fx - 8, gy - 6, 16, 2); c.fillStyle = '#8c887c'; c.fillRect(fx - 3, gy - 14, 6, 7); c.strokeRect(fx - 3, gy - 14, 6, 7);
-        c.fillStyle = '#3f6e88'; c.fillRect(fx - 0.5, gy - 8, 1, 2.4);
-      }
-    },
-    finds: FINDS,
-    summit: function (c, sx, sy, E) { gareDraw(c, E, sx, sy); }
-  });
+
 
   function sancySummit(c, E, sx, sy) {
-    // arrivée du Sancy (photo de référence) : croupe d'herbe, chemin de gravier en lacet, éperon rocheux et gare supérieure du téléphérique
-    var x, i, t = E.time;
-    // croupe herbeuse derrière la gare
-    c.fillStyle = A.grad(c, 0, sy - 62, 0, sy, [0, '#86ad6c', 1, '#4f7a46']);
-    c.beginPath(); c.moveTo(sx + 96, sy); c.quadraticCurveTo(sx + 128, sy - 62, sx + 168, sy - 60); c.quadraticCurveTo(sx + 186, sy - 50, sx + 196, sy); c.closePath(); c.fill();
-    /* Croupe herbeuse irrégulière portant la gare (photo de la station) — pas un dôme-bunker gris rayé. */
-    var top = sy - 32;
-    c.fillStyle = A.grad(c, 0, top - 4, 0, sy, [0, '#86ad68', 0.45, '#5f8a4a', 1, '#4a7040']);
-    c.beginPath();
-    c.moveTo(sx + 8, sy);
-    c.quadraticCurveTo(sx + 18, sy - 14, sx + 34, sy - 24);
-    c.quadraticCurveTo(sx + 52, top - 4, sx + 78, top - 1);
-    c.quadraticCurveTo(sx + 110, top + 1, sx + 136, sy - 16);
-    c.quadraticCurveTo(sx + 154, sy - 6, sx + 170, sy);
-    c.closePath();
-    c.fill();
-    /* petits affleurements bas, arrondis, calés sur le sentier */
-    c.fillStyle = '#8a8884';
-    c.beginPath(); c.moveTo(sx + 18, sy); c.quadraticCurveTo(sx + 26, sy - 5, sx + 36, sy - 3); c.lineTo(sx + 38, sy); c.closePath(); c.fill();
-    c.beginPath(); c.moveTo(sx + 142, sy - 5); c.quadraticCurveTo(sx + 152, sy - 9, sx + 164, sy); c.lineTo(sx + 142, sy); c.closePath(); c.fill();
-    c.fillStyle = '#6f9a54';
-    c.beginPath();
-    c.moveTo(sx + 52, top + 0.4);
-    c.quadraticCurveTo(sx + 88, top - 3.2, sx + 126, top + 0.6);
-    c.quadraticCurveTo(sx + 136, top + 2, sx + 138, top + 3);
-    c.quadraticCurveTo(sx + 88, top + 1.8, sx + 52, top + 0.4);
-    c.closePath();
-    c.fill();
-    /* sentier de gravier assis sur la croupe, vers la gare */
-    c.strokeStyle = '#d3c6a2'; c.lineWidth = 1.5; c.lineCap = 'round';
-    c.beginPath(); c.moveTo(sx + 150, sy - 7); c.quadraticCurveTo(sx + 128, sy - 16, sx + 108, top + 1); c.stroke();
-    c.strokeStyle = 'rgba(120,104,72,.4)'; c.lineWidth = 0.4;
-    c.beginPath(); c.moveTo(sx + 150, sy - 8); c.quadraticCurveTo(sx + 128, sy - 17, sx + 108, top); c.stroke();
-    c.lineCap = 'butt';
-    // gare supérieure du téléphérique : pierre et bois sombre, toit gris à pans, tour vitrée
-    var bx = sx + 62, bw = 66, by = top - 17;
-    c.fillStyle = A.grad(c, 0, by, 0, top, [0, '#c9c2b0', 1, '#9c9686']); c.fillRect(bx, by, bw, 17);
-    c.strokeStyle = '#2a2622'; c.lineWidth = 0.6; c.strokeRect(bx, by, bw, 17);
-    c.fillStyle = '#4b3a2c'; c.fillRect(bx, by + 11, bw, 6);
-    c.fillStyle = '#2c3a4a'; for (i = 0; i < 6; i++) { c.fillRect(bx + 4 + i * 10.4, by + 4, 6, 5); }
-    c.fillStyle = 'rgba(255,230,160,.5)'; for (i = 0; i < 6; i += 2) { c.fillRect(bx + 4 + i * 10.4, by + 4, 6, 5); }
-    c.fillStyle = '#7a7f88'; c.beginPath(); c.moveTo(bx - 3, by + 0.5); c.lineTo(bx + 14, by - 7); c.lineTo(bx + bw + 3, by - 7); c.lineTo(bx + bw + 3, by + 0.5); c.closePath(); c.fill(); c.strokeStyle = '#3b4048'; c.lineWidth = 0.5; c.stroke();
-    c.fillStyle = 'rgba(244,249,255,.9)'; c.fillRect(bx + 14, by - 7.6, bw - 11, 1.2);
-    var tx = bx + 36; c.fillStyle = A.grad(c, 0, by - 22, 0, by - 6, [0, '#8d939c', 1, '#6a7078']); c.fillRect(tx, by - 21, 20, 15); c.strokeRect(tx, by - 21, 20, 15);
-    c.fillStyle = '#26323f'; c.fillRect(tx + 2, by - 18, 16, 5); c.fillStyle = 'rgba(255,255,255,.3)'; c.fillRect(tx + 2, by - 18, 5, 5);
-    c.fillStyle = '#5a5f68'; c.fillRect(tx - 1, by - 22.6, 22, 2); c.fillStyle = 'rgba(244,249,255,.9)'; c.fillRect(tx - 1, by - 23.2, 22, 1);
-    c.fillStyle = '#3b4048'; c.fillRect(tx + 14, by - 34, 0.8, 11);
-    c.strokeStyle = '#55392a'; c.lineWidth = 0.6; c.beginPath(); c.moveTo(bx + 2, by + 12.5); c.lineTo(bx + 30, by + 12.5); c.stroke(); for (x = bx + 2; x <= bx + 30; x += 7) { c.beginPath(); c.moveTo(x, by + 12.5); c.lineTo(x, by + 17); c.stroke(); }
-    tableOrient(c, E, sx + 40, sy);
+    /* Premier plan seulement : passerelle / escalier de bois et table d'orientation.
+       La gare et le panorama sont dans sancyVista (au sommet : gare en contrebas). */
+    typBoardwalk(c, sx - 70, sy, sx - 18, 1.15);
+    typBoardwalk(c, sx + 28, sy, sx + 118, 1.15);
+    tableOrient(c, E, sx + 92, sy);
   }
+
 
   /* ============================================================================ NIVEAU 5 : PUY DE SANCY (neige) */
   AlpineBuild({
     id: 'sancy', stairs: 'planks', snow: true, horizonHaze: 'rgba(230,238,246,.5)', noHorizonBar: true, hideSummitFlag: true,
+    summitBoardX: -54, summitBoardW: 40, summitBoardSize: 3.3,
     pal: {
       q: { base: '#58452f', mid: '#32281e', lip: '#6a9a46', hi: '#c4e48a', dark: '#221a14' },
       f: { base: '#6a5a40', mid: '#3c3226', lip: '#9fae56', hi: '#dde99a', dark: '#2a2218' },
@@ -1606,14 +2199,14 @@
     bgExtra: function (c, vw, vh, hy, gain, E, H) { sancyVista(c, vw, vh, hy, gain, E, H); },
     flora: function (E, H) {
       var alt = function (x) { return E.L.altitudeStart + H.af(x) * (E.L.altitude - E.L.altitudeStart); };
-      var fo = function (x) { return (1 - ss(1420, 1520, alt(x))) * (1 - H.snow(x)); };
+      var fo = function (x) { return (1 - ss(0.02, 0.26, H.af(x))) * (1 - H.snow(x)) * (1 - ss(1400, 1480, alt(x))); };
       var open = function (x) { return (1 - fo(x)) * (1 - H.snow(x)); };
-      var kindB = function (x, h) { return h < 0.34 ? 'beech' : 'fir'; };
-      var hs = function (x) { return 34 + 9 * E.nz(x / 120, 5); };
+      var kindB = function (x, h) { return 'fir'; };
+      var hs = function (x) { return 16 + 5 * E.nz(x / 120, 5); };
       var cfg = { hazeCol: '#c4d4e4', rows: [
-        { step: 16, seed: 14, haze: 0.38, fillTop: '#2f6a50', fillBot: '#1c4438', autumn: 0.82, up: function (x) { return 24 * fo(x) + 1; }, dens: function (x) { return 0.96 * fo(x); }, size: function (x) { return hs(x) * 1.15; }, kind: kindB },
-        { step: 18, seed: 25, haze: 0.16, fillTop: '#2b6448', fillBot: '#1b4032', autumn: 0.82, up: function (x) { return 11 * fo(x) + 1; }, dens: function (x) { return 0.92 * fo(x); }, size: hs, kind: kindB },
-        { step: 24, seed: 36, haze: 0, sink: 0, fillTop: '#26543e', fillBot: '#173a2c', autumn: 0.8, up: function () { return 3; }, dens: function (x) { return 0.8 * fo(x); }, size: function (x) { return hs(x) * 0.92; }, kind: kindB },
+        { step: 16, seed: 14, haze: 0.38, fillTop: '#2f6a50', fillBot: '#1c4438', autumn: 0, up: function (x) { return 6 * fo(x) + 1; }, dens: function (x) { return 0.85 * fo(x); }, size: function (x) { return hs(x) * 1.05; }, kind: kindB },
+        { step: 18, seed: 25, haze: 0.16, fillTop: '#2b6448', fillBot: '#1b4032', autumn: 0, up: function (x) { return 4 * fo(x) + 1; }, dens: function (x) { return 0.8 * fo(x); }, size: hs, kind: kindB },
+        { step: 24, seed: 36, haze: 0, sink: 0, fillTop: '#26543e', fillBot: '#173a2c', autumn: 0, up: function () { return 2; }, dens: function (x) { return 0.75 * fo(x); }, size: function (x) { return hs(x) * 0.9; }, kind: kindB },
         { step: 12, seed: 52, haze: 0, sink: 0, fillTop: '#58703f', fillBot: '#344c2e', up: function () { return 3; }, dens: function (x) { return 0.5 * open(x); }, size: function (x) { return 11 + 3 * Math.sin(x / 55); }, kind: function (x, h) { return h < 0.5 ? 'bush' : 'heather'; }, bushPal: { dark: '#2a4a34', base: '#4b7a50', lite: '#98b878' } },
         { step: 30, seed: 62, haze: 0, fillTop: '#c8d6ea', fillBot: '#8fa2c4', up: function (x) { return 7 * H.snow(x); }, dens: function () { return 0; }, size: function () { return 8; }, kind: function () { return 'bush'; } }
       ] };
@@ -1652,8 +2245,7 @@
     finds: FINDS,
     summit: function (c, sx, sy, E) {
       sancySummit(c, E, sx, sy);
-      auditSeat('sancy-table', sx + 40, sy, sy);
-      auditSeat('sancy-gare-sup', sx + 95, sy, sy);
+      auditSeat('sancy-table', sx + 92, sy, sy);
     }
   });
 })();

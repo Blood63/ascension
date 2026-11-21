@@ -361,6 +361,16 @@
     for (i = id0; i * spc < off2 + vw + 12; i++) { var wx = i * spc + hash(i, 33) * 5, hh = (6 + 6 * hash(i, 34)) * (0.4 + 0.6 * cover); if (hash(i, 35) > (o.treeKind === 'beech' ? 0.7 : 0.88) * (0.4 + 0.6 * cover) + 0.12) { continue; } fir(c, wx - off2, hz2 - fn2(wx) + 1.5, hh, { haze: 0.5, hazeCol: hc, sway: false, pal: TREE.firB }); }
     c.restore();
     c.fillStyle = grad(c, hz2 - 26, hz2 + 18, [0, 'rgba(255,160,150,0)', 1, 'rgba(255,170,150,.3)']); c.fillRect(0, hz2 - 26, vw, 44);
+    if (window.__bgProbe) {
+      window.__bgProbe.hy = hy;
+      window.__bgProbe.layers = [
+        { kind: 'sky-horizon', base: hy },
+        { kind: 'chain', base: hy + 6 },
+        { kind: 'dome', base: dBase },
+        { kind: 'hills-far', base: hz1 },
+        { kind: 'hills-mid', base: hz2 }
+      ];
+    }
     return { hy: hy, hz2: hz2, cover: cover };
   }
 

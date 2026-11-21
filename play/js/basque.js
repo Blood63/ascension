@@ -94,6 +94,24 @@
     }
   };
 
+  var FIND_FOOT = 37;
+  (function () {
+    var id, fn;
+    for (id in FINDS) {
+      if (!FINDS.hasOwnProperty(id)) { continue; }
+      fn = FINDS[id];
+      FINDS[id] = (function (orig) {
+        return function (c, f, E) {
+          c.save();
+          c.translate(0, FIND_FOOT);
+          auditFoot(c, 'find', 0, 0);
+          orig(c, f, E);
+          c.restore();
+        };
+      }(fn));
+    }
+  }());
+
   function caveMouth(c, E, xa, xb, x0) {
     if (xb < x0 - 16 || xa > x0 + 90) { return; }
     var g = E.G[Math.max(0, Math.min(E.len, (x0 + 28) | 0))]; if (!isFinite(g)) { return; }
@@ -116,10 +134,23 @@
     if (S && S.fern) { S.fern(c, x0 + 10, g, 11, { t: E.time, seed: 3 }); S.fern(c, x0 + 78, g, 13, { t: E.time, seed: 8 }); }
   }
 
+  function auditFoot(c, name, x, y) {
+    if (!window.auditAnchor) { return; }
+    var px = x, py = y, m;
+    try {
+      if (c && c.getTransform) {
+        m = c.getTransform();
+        px = m.a * x + m.c * y + m.e;
+        py = m.b * x + m.d * y + m.f;
+      }
+    } catch (err) {}
+    window.auditAnchor(name, px, py, y);
+  }
+
   function drawEtxe(c, x, base, s) {
     s = s || 1;
+    auditFoot(c, 'etxe', x, base);
     c.save(); c.translate(x, base); c.scale(s, s);
-    c.fillStyle = 'rgba(20,16,10,.18)'; c.beginPath(); c.ellipse(2, 1.2, 16, 2.2, 0, 0, 7); c.fill();
     c.fillStyle = '#f4f0e6'; c.fillRect(-12, -16, 26, 16);
     c.strokeStyle = '#3a2a20'; c.lineWidth = 0.6; c.strokeRect(-12, -16, 26, 16);
     c.fillStyle = '#c43028';
@@ -696,12 +727,14 @@
   function drawIratyWoods(c, wx, base, off, alpha, E) {
     var tx = wx - off, yBot = base + 24;
     if (alpha < 0.04 || tx < -360 || tx > 1400) { return; }
-    c.save(); c.globalAlpha = alpha;
-    forestMass(c, tx - 240, tx + 250, function (x) {
-      return base - iratyHillH(x - tx);
+    /* Dessin en x monde, puis translation unique de -off : le houppier
+       glisse comme un solide, sans re-échantillonnage des sommets à chaque frame. */
+    c.save(); c.globalAlpha = alpha; c.translate(-off, 0);
+    forestMass(c, wx - 240, wx + 250, function (x) {
+      return base - iratyHillH(x - wx);
     }, yBot, 17, { col: '#2e5a34', col2: '#1a3a22', mix: 0.22, pad: 32 });
-    forestMass(c, tx - 80, tx + 160, function (x) {
-      return base - iratyHillH(x - tx) * 0.72 - 4;
+    forestMass(c, wx - 80, wx + 160, function (x) {
+      return base - iratyHillH(x - wx) * 0.72 - 4;
     }, yBot, 29, { col: '#245028', col2: '#16321c', mix: 0.18, pad: 22 });
     c.restore();
   }
@@ -904,7 +937,7 @@
               c.restore();
             }());
           } },
-        { par: 0.11, y: 36, hmax: 18, hs: 1, fn: mid, c0: '#6a8a58', c1: '#4a6a40', edge: 'rgba(40,48,36,.22)', haze: 'rgba(210,220,200,.08)', gk: 0.03,
+        { par: 0.11, y: 36, hmax: 18, hs: 1, fn: mid, step: 1, c0: '#6a8a58', c1: '#4a6a40', edge: 'rgba(40,48,36,.22)', haze: 'rgba(210,220,200,.08)', gk: 0,
           decor: function (c, vw, base, off, fn, Ev) {
             var spots, i, wx, tx, hy, sc, opt;
             opt = { fn: fn, base: base, off: off };
@@ -949,7 +982,7 @@
               }(spots[i][0], spots[i][1], spots[i][2], spots[i][3], spots[i][4], spots[i][5]));
             }
           } },
-        { par: 0.22, y: 52, hmax: 14, hs: 1, fn: near, c0: '#4a7240', c1: '#2e4e2c', edge: 'rgba(30,40,28,.20)', gk: 0.08 }
+        { par: 0.22, y: 52, hmax: 14, hs: 1, fn: near, c0: '#4a7240', c1: '#2e4e2c', edge: 'rgba(30,40,28,.20)', gk: 0 }
       ];
     },
     bgExtra: function (c, vw, vh, hy, gain, E) {
@@ -1451,7 +1484,7 @@
     for (i = 1; i <= n; i++) {
       t = i / n;
       x = x0 + (x1 - x0) * t;
-      y = ridgeAt(x) + Math.sin(t * 6.2 + seed) * 3.2 + ((i * 7 + seed) % 5) - 2;
+      y = ridgeAt(x) + Math.sin(t * 6.2 + seed) * 3.2 + Math.sin(i * 1.71 + seed) * 1.5;
       c.quadraticCurveTo(x - (x1 - x0) / n * 0.5, y - 2.2, x, y);
     }
     yR = ridgeAt(x1);
@@ -1469,7 +1502,7 @@
     span = x1 - x0;
     for (i = 0; i < n + 3; i++) {
       t = (i + 0.25) / (n + 3);
-      x = x0 + span * t + ((i * 11 + seed) % 6) - 3;
+      x = x0 + span * t + Math.sin(i * 2.3 + seed) * 2.4;
       y = ridgeAt(x) + Math.sin(t * 6.2 + seed) * 3.2 + 1.2;
       sc = 4.2 + (i % 4) * 1.1;
       c.fillStyle = (i % 3) ? col : '#345838';
@@ -1478,17 +1511,19 @@
         S.fir(c, x, y + 3, sc * 1.15, { haze: 0.1, seed: seed + i, t: 0, sway: false });
       }
     }
-    /* fûts en grappes, bas de la lisière */
-    for (j = 0; j < 4; j++) {
-      tx = x0 + span * (0.18 + j * 0.2) + ((j * 5 + seed) % 7) - 3;
-      ty = (ridgeAt(tx) * 0.25 + botAt(tx) * 0.75);
-      for (i = 0; i < 3; i++) {
-        c.strokeStyle = 'rgba(28, 22, 16, 0.55)';
-        c.lineWidth = 0.9;
-        c.beginPath();
-        c.moveTo(tx + i * 3.1 - 3, ty + 6);
-        c.lineTo(tx + i * 3.1 - 3, ty - 4 - (i % 2));
-        c.stroke();
+    /* fûts optionnels : évités sur les plans d'approche (lisibilité). */
+    if (!opt.noTrunks) {
+      for (j = 0; j < 4; j++) {
+        tx = x0 + span * (0.18 + j * 0.2) + ((j * 5 + seed) % 7) - 3;
+        ty = (ridgeAt(tx) * 0.25 + botAt(tx) * 0.75);
+        for (i = 0; i < 3; i++) {
+          c.strokeStyle = 'rgba(28, 22, 16, 0.55)';
+          c.lineWidth = 0.9;
+          c.beginPath();
+          c.moveTo(tx + i * 3.1 - 3, ty + 6);
+          c.lineTo(tx + i * 3.1 - 3, ty - 4 - (i % 2));
+          c.stroke();
+        }
       }
     }
   }

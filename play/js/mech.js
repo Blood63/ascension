@@ -1,4 +1,4 @@
-/* v0.4.0 — dessin des mécaniques d'environnement : passage à niveau et train du Panoramique des Dômes (stylisé, vue de côté),
+/* v0.4.0 — dessin des mécaniques d'environnement : passage à niveau et train de la Rhune (stylisé, vue de côté),
    randonneurs qui piétinent les dalles fragiles, brouillard, soleil écrasant, neige, rafales de vent.
    Ce fichier ne contient que du dessin ; la logique est dans js/game.js. */
 (function () {
@@ -55,7 +55,22 @@
       c.strokeStyle = '#cfd4dc'; c.lineWidth = 0.6; c.stroke();
       c.beginPath(); for (x = x0; x <= x1; x += 2) { yT = tY(E, x); if (x === x0) { c.moveTo(x, yT - 3.0); } else { c.lineTo(x, yT - 3.0); } } c.lineTo(x1, tY(E, x1) - 3.0);
       c.setLineDash([1.1, 1.1]); c.strokeStyle = '#8a8f99'; c.lineWidth = 0.9; c.stroke(); c.setLineDash([]);
-      // caténaire : poteaux bordeaux tous les ~190 px, fil de contact parallèle au rail
+      // muret de pierres sèches qui soutient le remblai, côté caméra
+      for (x = x0 + 2; x < x1; x += 2.6) {
+        var hs = hash(x | 0, 19), yTop = tY(E, x) + 2.3 + hs * 0.45, yy, r, bw, bh, ox;
+        yy = yTop;
+        for (r = 0; r < 3; r++) {
+          bw = 2.6 + hash(x + r, 21) * 1.7;
+          bh = 2.5 + hash(x + r, 29) * 1.5;
+          ox = (r % 2) * 0.7;
+          c.fillStyle = hs > 0.62 ? '#a39e94' : (hs > 0.35 ? '#7d786e' : '#5c5850');
+          c.fillRect(x - bw * 0.5 + ox, yy, bw, bh);
+          c.fillStyle = 'rgba(255,252,245,.22)'; c.fillRect(x - bw * 0.5 + ox, yy, bw, 0.45);
+          c.fillStyle = 'rgba(30,28,24,.38)'; c.fillRect(x - bw * 0.5 + ox, yy + bh - 0.4, bw, 0.4);
+          yy += bh - 0.15;
+        }
+      }
+      // caténaire : poteaux de bois et consoles, fil de contact parallèle au rail
       var pk0 = Math.ceil((x0 + 8) / 190), pk1 = Math.floor((x1 - 8) / 190), skip;
       c.beginPath(); for (x = x0; x <= x1; x += 4) { yT = tY(E, x) - WIRE_H; if (x === x0) { c.moveTo(x, yT); } else { c.lineTo(x, yT); } }
       c.strokeStyle = 'rgba(46,40,48,.9)'; c.lineWidth = 0.5; c.stroke();
@@ -64,10 +79,12 @@
         E.trains.forEach(function (tr) { if (px > tr.x0 - 20 && px < tr.x1 + 20) { skip = true; } });
         if (skip || px < x0 + 4 || px > x1 - 4) { continue; }
         var yb = tY(E, px) + 0.8, ytop = yb - WIRE_H - 7;
-        c.fillStyle = '#5c2326'; c.beginPath(); c.moveTo(px - 1.3, yb); c.lineTo(px - 0.8, ytop); c.lineTo(px + 0.8, ytop); c.lineTo(px + 1.3, yb); c.closePath(); c.fill();
-        c.fillStyle = 'rgba(214,120,110,.5)'; c.fillRect(px - 0.9, ytop, 0.5, yb - ytop);
-        c.fillStyle = '#4a1d20'; c.fillRect(px - 6, ytop + 1.2, 12, 1.1); c.fillRect(px - 1.7, yb - 1.4, 3.4, 1.6);
-        c.strokeStyle = 'rgba(46,40,48,.9)'; c.lineWidth = 0.4; c.beginPath(); c.moveTo(px, ytop + 2.2); c.lineTo(px, yb - WIRE_H); c.stroke();   // pendule
+        c.fillStyle = '#6a4a2c'; c.beginPath(); c.moveTo(px - 1.4, yb); c.lineTo(px - 0.9, ytop); c.lineTo(px + 0.9, ytop); c.lineTo(px + 1.4, yb); c.closePath(); c.fill();
+        c.fillStyle = '#c49a62'; c.fillRect(px - 0.55, ytop, 0.4, yb - ytop);
+        /* console métallique en bras, au-dessus de la voie */
+        c.fillStyle = '#3a3a40'; c.fillRect(px - 1.6, ytop, 11, 1.15);
+        c.fillStyle = '#2a2a30'; c.fillRect(px - 1.8, yb - 1.5, 3.6, 1.7);
+        c.strokeStyle = '#2e2830'; c.lineWidth = 0.45; c.beginPath(); c.moveTo(px + 9, ytop + 1.1); c.lineTo(px + 0.2, yb - WIRE_H); c.stroke();
       }
     });
   }
@@ -118,80 +135,161 @@
     });
   }
 
-  /* ---------- le train du Panoramique des Dômes (d'après les photos) : rame blanche articulée à 3 éléments, cabine noire à grand pare-brise,
-     baies vitrées sombres, bandeau mauve « silhouette de montagnes » en bas de caisse, logo, pantographe sous caténaire ; face à gauche ---------- */
-  var SEGS = [[0, 98], [98, 68], [166, 66]];
+  /* ---------- Train de la Rhune (photos Commons + brief Émilien) : deux voitures
+     en bois vernis attelées, toit bordeaux arrondi, baies ouvertes à rideaux rayés
+     rouge et blanc, cabine d'extrémité vitrée, pantographe en losange sous la caténaire.
+     Le passage à niveau (crossing) et sa logique restent inchangés. Face à gauche. ---------- */
+  var SEGS = [[0, 122], [114, 118]];
+  function curtain(c, px, py, pw, ph, seed) {
+    var k, stripe = pw * 0.16, tied = py + ph * 0.42;
+    for (k = 0; k < 4; k++) {
+      c.fillStyle = k % 2 ? '#f4f0e8' : '#c4282a';
+      c.fillRect(px + k * stripe * 0.55, py, stripe * 0.7, ph * 0.22);
+    }
+    /* paquets noués de chaque côté */
+    [[px + 0.4, 1], [px + pw - 2.2, -1]].forEach(function (s) {
+      var sx = s[0], dir = s[1], q;
+      for (q = 0; q < 4; q++) {
+        c.fillStyle = q % 2 ? '#f4f0e8' : '#c4282a';
+        c.beginPath();
+        c.moveTo(sx + q * 0.45, py + 0.2);
+        c.quadraticCurveTo(sx + q * 0.45 + dir * 1.6, tied, sx + q * 0.4 + dir * 0.3, py + ph - 0.4);
+        c.lineTo(sx + q * 0.45 + 0.55, py + ph - 0.4);
+        c.quadraticCurveTo(sx + q * 0.45 + dir * 2.1, tied, sx + q * 0.45 + 0.55, py + 0.2);
+        c.closePath(); c.fill();
+      }
+      c.fillStyle = '#6a1a16'; c.beginPath(); c.arc(sx + 1.0, tied, 0.7, 0, 7); c.fill();
+    });
+  }
+  function woodBody(c, x0, y0, w, h, frontRound) {
+    var g = A.grad(c, 0, y0, 0, y0 + h, [0, '#e0a05a', 0.45, '#c47838', 1, '#8a4a22']);
+    c.beginPath();
+    if (frontRound) {
+      c.moveTo(x0 + 8, y0);
+      c.quadraticCurveTo(x0 + 1.2, y0, x0, y0 + 8);
+      c.lineTo(x0 - 0.6, y0 + h - 3);
+      c.quadraticCurveTo(x0 + 1, y0 + h, x0 + 7, y0 + h);
+    } else {
+      c.moveTo(x0, y0 + 1); c.lineTo(x0, y0 + h);
+    }
+    c.lineTo(x0 + w, y0 + h); c.lineTo(x0 + w, y0 + 1);
+    c.quadraticCurveTo(x0 + w, y0, x0 + w - 3, y0);
+    c.closePath();
+    c.fillStyle = g; c.fill();
+    c.strokeStyle = '#3a2416'; c.lineWidth = 0.55; c.stroke();
+    /* lambris verticaux opaques */
+    c.save(); c.clip();
+    var x;
+    c.strokeStyle = 'rgba(90,42,16,.35)'; c.lineWidth = 0.45;
+    c.beginPath();
+    for (x = x0 + 3; x < x0 + w - 1; x += 2.2) { c.moveTo(x, y0 + 1); c.lineTo(x, y0 + h - 1); }
+    c.stroke();
+    c.restore();
+  }
+  function burgundyRoof(c, x0, y0, w, frontRound) {
+    var h = 5.6;
+    c.beginPath();
+    if (frontRound) {
+      c.moveTo(x0 + 6, y0 + h);
+      c.quadraticCurveTo(x0 + 2, y0 + 2.2, x0 + 10, y0);
+    } else {
+      c.moveTo(x0, y0 + h); c.lineTo(x0 + 4, y0);
+    }
+    c.lineTo(x0 + w - 3, y0);
+    c.quadraticCurveTo(x0 + w + 0.6, y0 + 0.4, x0 + w, y0 + h);
+    c.closePath();
+    c.fillStyle = A.grad(c, 0, y0, 0, y0 + h, [0, '#9a2a36', 0.55, '#6e1824', 1, '#4a1018']); c.fill();
+    c.strokeStyle = '#3a0c12'; c.lineWidth = 0.5; c.stroke();
+    /* liseré bordeaux sous le toit */
+    c.fillStyle = '#5a1218'; c.fillRect(x0 + (frontRound ? 6 : 0), y0 + h - 0.15, w - (frontRound ? 6 : 0), 1.35);
+  }
   function trainBody(c, tr, E) {
     if (tr.state !== 'pass') { return; }
-    var Ltot = tr.len, xl0 = tr.tx - Ltot / 2, i, H = 38, t = E.time;
+    var Ltot = tr.len, xl0 = tr.tx - Ltot / 2, H = 33, t = E.time;
     c.save();
-    // ombre portée sur le ballast
-    c.fillStyle = 'rgba(15,8,25,.22)'; c.beginPath(); c.ellipse(tr.tx, tY(E, tr.tx, tr) + 0.6, Ltot * 0.48, 1.8, 0, 0, 7); c.fill();
+    c.fillStyle = '#2a2018'; c.beginPath(); c.ellipse(tr.tx, tY(E, tr.tx, tr) + 0.6, Ltot * 0.48, 1.8, 0, 0, 7); c.fill();
     SEGS.forEach(function (sg, si) {
       var len = sg[1], xc = xl0 + sg[0] + len / 2, yL = tY(E, xc - len * 0.36, tr), yR = tY(E, xc + len * 0.36, tr), yc = (yL + yR) / 2, ang = Math.atan2(yR - yL, len * 0.72), hl = len / 2;
+      var x0 = -hl, front = si === 0, wy, wh, n, pw, k, px;
       c.save(); c.translate(xc, yc); c.rotate(ang);
-      // bogies
-      [[-hl + 13], [hl - 13]].forEach(function (b) {
-        c.fillStyle = '#23242b'; c.fillRect(b[0] - 8, -7.4, 16, 4.6);
-        c.fillStyle = '#10111a'; c.beginPath(); c.arc(b[0] - 4.5, -4.0, 2.6, 0, 7); c.arc(b[0] + 4.5, -4.0, 2.6, 0, 7); c.fill();
-        c.fillStyle = '#9aa0ac'; c.beginPath(); c.arc(b[0] - 4.5, -4.0, 1, 0, 7); c.arc(b[0] + 4.5, -4.0, 1, 0, 7); c.fill();
+      /* bogies et petites roues, châssis sombre — les roues restent sur le rail (y ≈ 0) */
+      [[-hl + 16], [hl - 16]].forEach(function (b) {
+        c.fillStyle = '#1a1816'; c.fillRect(b[0] - 8, -7.0, 16, 3.8);
+        c.fillStyle = '#0e0e10'; c.beginPath(); c.arc(b[0] - 4.2, -3.4, 2.35, 0, 7); c.arc(b[0] + 4.2, -3.4, 2.35, 0, 7); c.fill();
+        c.fillStyle = '#8a8680'; c.beginPath(); c.arc(b[0] - 4.2, -3.4, 0.85, 0, 7); c.arc(b[0] + 4.2, -3.4, 0.85, 0, 7); c.fill();
       });
-      // caisse blanche
-      c.beginPath();
-      if (si === 0) { c.moveTo(-hl + 7, -H); c.quadraticCurveTo(-hl + 1.5, -H, -hl + 1, -H + 6); c.lineTo(-hl - 0.6, -13); c.quadraticCurveTo(-hl - 0.8, -8, -hl + 3, -6.5); }
-      else { c.moveTo(-hl, -H + 1); c.lineTo(-hl, -6.5); }
-      c.lineTo(hl + 0.4, -6.5); c.lineTo(hl + 0.4, -H + 1.5); c.quadraticCurveTo(hl + 0.4, -H, hl - 2, -H); c.closePath();
-      c.fillStyle = A.grad(c, 0, -H, 0, -6, [0, '#ffffff', 0.55, '#f1f3f7', 1, '#c3cad6']); c.fill(); c.lineWidth = 0.55; c.strokeStyle = '#2a3140'; c.stroke();
-      // bandeau mauve en bas de caisse : silhouette de montagnes (puys) + liseré
-      c.save(); c.clip();
-      var x, ph = si * 31.7;
-      c.beginPath(); c.moveTo(-hl - 2, -6.6);
-      for (x = -hl - 2; x <= hl + 3; x += 3) { var wv = 4.6 + 3.8 * Math.abs(Math.sin((x + ph) * 0.11)) + 2.2 * Math.sin((x + ph) * 0.37 + 1); c.lineTo(x, -6.6 - wv); }
-      c.lineTo(hl + 3, -6.6); c.closePath(); c.fillStyle = '#c7a4c6'; c.fill();
-      c.beginPath(); c.moveTo(-hl - 2, -6.6);
-      for (x = -hl - 2; x <= hl + 3; x += 3) { var wv2 = 2.4 + 3.0 * Math.abs(Math.sin((x + ph + 9) * 0.16)) + 1.2 * Math.sin((x + ph) * 0.53); c.lineTo(x, -6.6 - wv2); }
-      c.lineTo(hl + 3, -6.6); c.closePath(); c.fillStyle = '#8f5f93'; c.fill();
-      c.fillStyle = '#3b3a46'; c.fillRect(-hl - 2, -7.4, len + 6, 1.2);                         // jupe sombre
-      c.restore();
-      // baies vitrées sombres (grandes) séparées de montants blancs
-      var wy = -31, wh = 12.5;
-      function pane(px, pw) {
-        c.fillStyle = A.grad(c, 0, wy, 0, wy + wh, [0, '#33465c', 1, '#18222f']); c.fillRect(px, wy, pw, wh);
-        c.fillStyle = 'rgba(190,220,245,.30)'; c.beginPath(); c.moveTo(px + pw * 0.15, wy); c.lineTo(px + pw * 0.55, wy); c.lineTo(px + pw * 0.2, wy + wh); c.lineTo(px - 1, wy + wh); c.closePath(); c.fill();
-        c.fillStyle = 'rgba(255,255,255,.18)'; c.fillRect(px, wy, pw, 0.8);
-      }
-      if (si === 0) {
-        // cabine noire : toit noir, grand pare-brise incliné
-        c.fillStyle = '#17181e'; c.beginPath(); c.moveTo(-hl + 6.5, -H - 0.4); c.quadraticCurveTo(-hl + 1.2, -H - 0.4, -hl + 0.8, -H + 6); c.lineTo(-hl + 0.2, -15); c.lineTo(-hl + 26, -15); c.lineTo(-hl + 26, -H - 0.4); c.closePath(); c.fill();
-        c.fillStyle = A.grad(c, 0, -H + 3, 0, -15, [0, '#42576f', 1, '#1c2735']); c.beginPath(); c.moveTo(-hl + 5.5, -H + 4); c.lineTo(-hl + 23, -H + 4); c.lineTo(-hl + 23, -17); c.lineTo(-hl + 2.4, -17); c.closePath(); c.fill();
-        c.fillStyle = 'rgba(200,225,250,.28)'; c.beginPath(); c.moveTo(-hl + 9, -H + 4); c.lineTo(-hl + 16, -H + 4); c.lineTo(-hl + 8, -17); c.lineTo(-hl + 2.4, -17); c.closePath(); c.fill();
-        c.fillStyle = '#4f5663'; c.fillRect(-hl + 1, -15, 25, 1.2);
-        pane(-hl + 30, 14); pane(-hl + 47, 14); pane(-hl + 64, 14);
-        c.fillStyle = '#e9ecf2'; c.fillRect(hl - 20, wy - 1, 17, wh + 2);                             // porte double
-        c.strokeStyle = '#5a6272'; c.lineWidth = 0.4; c.strokeRect(hl - 20, wy - 1, 17, wh + 2); c.beginPath(); c.moveTo(hl - 11.5, wy - 1); c.lineTo(hl - 11.5, wy + wh + 1); c.stroke();
-        pane(hl - 18.5, 6); pane(hl - 10, 6);
-        c.fillStyle = '#fff3b8'; c.fillRect(-hl + 0.4, -12.2, 2.4, 2.4);                              // phare
-        c.save(); c.globalCompositeOperation = 'lighter'; var hg = c.createRadialGradient(-hl, -11, 0, -hl, -11, 22); hg.addColorStop(0, 'rgba(255,240,170,.5)'); hg.addColorStop(1, 'rgba(255,240,170,0)'); c.fillStyle = hg; c.fillRect(-hl - 22, -33, 24, 44); c.restore();
-        // logo « PANORAMIQUE DES DÔMES » (mauve + deux lignes) près de l'avant
-        c.fillStyle = '#8f5f93'; c.beginPath(); c.moveTo(-hl + 5, -10.2); c.lineTo(-hl + 8, -13.4); c.lineTo(-hl + 10.5, -10.2); c.closePath(); c.fill();
-        c.fillStyle = '#2d2a3a'; c.fillRect(-hl + 12, -13.2, 15, 1.1); c.fillRect(-hl + 12, -11.4, 11, 1.0);
+      c.fillStyle = '#1c1a18'; c.fillRect(x0 + 2, -8.2, len - 4, 2.2);
+      woodBody(c, x0, -H + 4, len, H - 11.5, front);
+      burgundyRoof(c, x0, -H - 1.2, len, front);
+      /* baies ouvertes + rideaux */
+      wy = -27.5; wh = 11.2;
+      if (front) {
+        n = 4; pw = 12.5;
+        for (k = 0; k < n; k++) {
+          px = x0 + 30 + k * (pw + 3.2);
+          c.fillStyle = '#1c2836'; c.fillRect(px, wy, pw, wh);
+          c.fillStyle = '#3a2a1c'; c.fillRect(px, wy + wh - 2.2, pw, 2.2);
+          curtain(c, px, wy, pw, wh, k + si);
+        }
+        /* cabine vitrée, avant arrondi, pare-brise, phares */
+        c.fillStyle = '#1c2836';
+        c.beginPath();
+        c.moveTo(x0 + 6.5, -H + 6.5);
+        c.lineTo(x0 + 24, -H + 6.5);
+        c.lineTo(x0 + 24, -15);
+        c.lineTo(x0 + 3.2, -15);
+        c.quadraticCurveTo(x0 + 1.4, -H + 10, x0 + 6.5, -H + 6.5);
+        c.closePath(); c.fill();
+        c.fillStyle = '#4a6578';
+
+        c.beginPath();
+        c.moveTo(x0 + 8, -H + 8);
+        c.lineTo(x0 + 22.5, -H + 8);
+        c.lineTo(x0 + 22.5, -16.2);
+        c.lineTo(x0 + 5.2, -16.2);
+        c.closePath(); c.fill();
+        c.fillStyle = '#c8d8e8';
+        c.beginPath(); c.moveTo(x0 + 9, -H + 8); c.lineTo(x0 + 14, -H + 8); c.lineTo(x0 + 7.5, -16.2); c.lineTo(x0 + 5.2, -16.2); c.closePath(); c.fill();
+        c.strokeStyle = '#2a2018'; c.lineWidth = 0.5; c.strokeRect(x0 + 5.2, -H + 8, 17.3, (-16.2) - (-H + 8));
+        /* montants de cabine */
+        c.fillStyle = '#5a3a22'; c.fillRect(x0 + 24, -H + 5, 2.2, H - 13);
+        /* deux phares, typiques du matériel 1924 */
+        [[x0 + 2.4, -12.4], [x0 + 2.4, -8.2]].forEach(function (lp) {
+          c.fillStyle = '#3a342c'; c.beginPath(); c.arc(lp[0], lp[1], 1.7, 0, 7); c.fill();
+          c.fillStyle = '#fff3b0'; c.beginPath(); c.arc(lp[0], lp[1], 1.15, 0, 7); c.fill();
+        });
+        /* pantographe en losange : le frotteur est calé sur le fil de contact */
+        (function () {
+          var ax = x0 + 48, base = -H - 1.4, pwx, pwy, top, mid;
+          pwx = xc + ax * Math.cos(ang);
+          pwy = tY(E, pwx, tr) - WIRE_H;
+          top = (pwy - yc - ax * Math.sin(ang)) / Math.max(0.2, Math.cos(ang));
+          mid = (base + top) * 0.5;
+          c.fillStyle = '#2a2a30'; c.fillRect(ax - 6, base - 1.3, 12, 1.6);
+          c.strokeStyle = '#1c1c22'; c.lineWidth = 1.15; c.lineJoin = 'round'; c.lineCap = 'round';
+          c.beginPath();
+          c.moveTo(ax - 7.2, base - 1.2); c.lineTo(ax, mid); c.lineTo(ax + 7.2, base - 1.2);
+          c.moveTo(ax - 7.2, top + 1.4); c.lineTo(ax, mid); c.lineTo(ax + 7.2, top + 1.4);
+          c.stroke();
+          /* frotteur qui touche le fil */
+          c.fillStyle = '#1a1a20'; c.fillRect(ax - 7.6, top - 0.4, 15.2, 1.5);
+          c.fillStyle = '#6a6a72'; c.fillRect(ax - 7.2, top - 0.15, 14.4, 0.7);
+        }());
       } else {
-        var n = 4, pw = (len - 10) / n - 2.5, k;
-        for (k = 0; k < n; k++) { pane(-hl + 5 + k * (pw + 2.5), pw); }
-        if (si === 1) { c.fillStyle = '#2d2a3a'; c.fillRect(hl - 17, -13.2, 13, 1.1); c.fillRect(hl - 17, -11.4, 9, 1.0); c.fillStyle = '#8f5f93'; c.beginPath(); c.moveTo(hl - 22, -10.2); c.lineTo(hl - 19.4, -13.4); c.lineTo(hl - 17, -10.2); c.closePath(); c.fill(); }
+        n = 6; pw = (len - 16) / n - 2.0;
+        for (k = 0; k < n; k++) {
+          px = x0 + 7 + k * (pw + 2.0);
+          c.fillStyle = '#1c2836'; c.fillRect(px, wy, pw, wh);
+          c.fillStyle = '#3a2a1c'; c.fillRect(px, wy + wh - 2.2, pw, 2.2);
+          curtain(c, px, wy, pw, wh, k + 8);
+        }
       }
-      // toit : liseré gris + équipements ; pantographe sur l'élément central
-      c.fillStyle = '#9ea5b2'; c.fillRect(-hl + (si === 0 ? 26 : 0), -H - 0.2, len - (si === 0 ? 26 : 0) + 0.4, 1.1);
-      if (si === 1) {
-        c.fillStyle = '#6c7788'; c.fillRect(-14, -H - 1.8, 24, 1.8);
-        c.strokeStyle = '#1f2430'; c.lineWidth = 0.9; c.beginPath(); c.moveTo(-8, -H - 1.6); c.lineTo(1, -H - 5.6); c.lineTo(-3, -H - 7.4); c.stroke();
-        c.beginPath(); c.moveTo(2, -H - 1.6); c.lineTo(-3, -H - 7.4); c.stroke();
-        c.fillStyle = '#1f2430'; c.fillRect(-7.6, -H - 8.1, 9.2, 1.0);
-        c.fillStyle = '#d9dde4'; c.fillRect(12, -H - 3.2, 14, 1.8);
+      /* attelage / soufflet : recouvre le joint pour qu'aucune fente ne reste */
+      if (si < SEGS.length - 1) {
+        c.fillStyle = '#3a2a1c'; c.fillRect(hl - 5.0, -H + 5, 10, H - 14);
+        c.fillStyle = '#2a1c14'; c.fillRect(hl - 3.2, -H + 7, 6.4, H - 17);
+        c.fillStyle = '#5a4030'; c.fillRect(hl - 2.2, -19, 4.4, 2.4);
       }
-      if (si === 2) { c.fillStyle = '#d9dde4'; c.fillRect(-12, -H - 3.0, 16, 1.8); }
-      // soufflet d'articulation
-      if (si < 2) { c.fillStyle = '#2b2e38'; c.fillRect(hl - 1.6, -H + 3, 3.4, H - 9.6); c.fillStyle = 'rgba(255,255,255,.12)'; c.fillRect(hl - 1.2, -H + 3, 0.8, H - 9.6); }
       c.restore();
     });
     c.restore();

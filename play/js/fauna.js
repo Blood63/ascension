@@ -111,7 +111,7 @@
   function herdBox(a) {
     if (a.kind === 'pottok') { return { hw: 11, h: 15, dy: 0 }; }
     if (a.kind === 'sheep') { return { hw: 8, h: 12, dy: 0 }; }
-    if (a.kind === 'cow') { return { hw: 26, h: 30, dy: 0 }; }
+    if (a.kind === 'cow') { return { hw: 7, h: 5, dy: 0 }; }
     if (a.kind === 'chamois') { return { hw: 9, h: 13, dy: 0 }; }
     if (a.kind === 'ibex') { return { hw: 10, h: 15, dy: 0 }; }
     if (a.kind === 'tetra') { return { hw: 7, h: 8, dy: 0 }; }
@@ -138,9 +138,14 @@
           a.x += a.vx * dt; a.ph += dt * (a.kind === 'pottok' ? 7.2 : (a.kind === 'sheep' ? 6.4 : (a.kind === 'cow' ? 5.6 : (a.kind === 'chamois' ? 8.2 : (a.kind === 'ibex' ? 6.6 : (a.kind === 'tetra' ? 5.0 : 10))))));
           a.y = gAt(E, a.x);
           if (state === 'play' && P.inv <= 0 && !a.hit) {
-            var b = herdBox(a), dx = P.x - a.x, overlapX = Math.abs(dx) < b.hw + 5;
+            var b = herdBox(a), dx = P.x - a.x;
+            var padX = a.kind === 'cow' ? 2 : 5, padY = a.kind === 'cow' ? 0 : 2;
+            var overlapX = Math.abs(dx) < b.hw + padX;
             var py = P.y, ay = a.y - b.dy;
-            if (overlapX && py > ay - b.h - 2 && py < ay + 8) {
+            /* Retombée sur le dos : le joueur a déjà dépassé le centre de la vache
+               (saut un peu trop tôt). Un choc de face reste punitif. */
+            var passedBack = a.kind === 'cow' && ((P.vx >= 0 && P.x >= a.x) || (P.vx < 0 && P.x <= a.x));
+            if (overlapX && py > ay - b.h - padY && py < ay + 8 && !passedBack) {
               a.hit = true;
               if (E.hurt) { E.hurt(a.kind); }
             }
@@ -507,11 +512,11 @@
     var bodyD = mont ? '#c45a32' : (betizu ? '#6a3418' : '#3a2c20');
     var bodyL = mont ? '#fffaf0' : (betizu ? '#c87840' : '#8a6a48');
     var horn = '#f0e6d0';
-    /* Sprite local ≈ 15,3 u au garrot, ≈ 22,4 u de long. Échelle réelle :
-       1,75 m = 37 u ⇒ 1,4 m au garrot = 29,6 u, 2,4 m de long = 50,7 u.
-       a.sc (défaut 1) sert aux couches lointaines. */
+    /* Échelle calée sur le pottok, unique cheval du jeu (29×23 px à alpha 90).
+       scX / scY : 1,188 × 1,250 sur le sprite local, pour une emprise
+       de 29×23 px (±1). a.sc sert encore aux couches lointaines. */
     var sc = (a.sc != null ? a.sc : 1);
-    var scX = sc * (50.7 / 22.4), scY = sc * (29.6 / 15.3);
+    var scX = sc * 1.188, scY = sc * 1.250;
     c.save(); c.translate(a.x, a.y + Math.sin(ph) * 0.18 * scY); c.scale(face * scX, scY);
     c.translate(0, -1.5);
     softShadow(c, 0.4, 1.2, 10.5, 1.8);
@@ -565,8 +570,8 @@
       c.beginPath(); c.arc(10.4, -16.0, 0.45, 0, 7); c.fill();
       c.beginPath(); c.arc(13.6, -15.6, 0.45, 0, 7); c.fill();
     } else {
-      c.beginPath(); c.moveTo(9.6, -11.4); c.quadraticCurveTo(9.2, -13.2, 9.8, -14.2); c.stroke();
-      c.beginPath(); c.moveTo(10.6, -11.6); c.quadraticCurveTo(11.6, -13.4, 12.2, -14.0); c.stroke();
+      c.beginPath(); c.moveTo(9.6, -11.4); c.quadraticCurveTo(9.2, -13.8, 9.8, -15.2); c.stroke();
+      c.beginPath(); c.moveTo(10.6, -11.6); c.quadraticCurveTo(11.6, -14.0, 12.2, -15.0); c.stroke();
     }
     /* tache plus claire typique de certaines betizu, discrète */
     if (betizu) {

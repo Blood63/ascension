@@ -10,7 +10,7 @@
   var CRATER_X = 4340;                       // début de la paroi interne du cratère (après le sommet)
   var TH = null, THEMES = {}, EV = {};      // thème de niveau (décor + palettes, js/pariou.js) et environnement exposé aux thèmes
 
-  var L = null, P = null, W = null, state = 'idle', frozen = false, cb = {}, cam = { x: 0, y: 0 };
+  var L = null, P = null, W = null, state = 'idle', frozen = false, cb = {}, cam = { x: 0, y: 0 }, camGroundY = null, lastBg = null;
   var G, GF, TYPE, PITY, LOOK, len = 0, ZN, FOGD, fwS = 0.36, RAIL, LEDGE;
   var Z_SUN = 1, Z_SHADE = 2, Z_SNOW = 4, Z_FOG = 8, Z_WIND = 16, Z_WET = 32, Z_STORM = 64, Z_SLIP = 128;
   var wind = { st: 'calm', t: 0, str: 0, warn: 0, on: false };
@@ -185,7 +185,7 @@
     rocks = []; warns = []; parts = []; hintQ = []; hintShown = null; hintsTrig = {}; clock = 0; wind = { st: 'calm', t: 0, str: 0, warn: 0, on: false }; trk = { x: -1, n: 0 }; rockTimer = 2; zoneNow = -1; rockCount = 0; fade = 0; fadeDir = 0; pendingRespawn = false; shake = 0; wonT = 0; zoom = 1; zoomOv = null; lookOv = null;
     feat.bottles.forEach(function (b) { b.taken = false; });
     var fnd = window.Save.foundOf(L.number); feat.finds.forEach(function (f) { f.got = !!fnd[f.id]; }); summitFired = false; vistaMode = false;
-    cam.x = 0; cam.y = P.y - vh0() * 0.64; state = 'play'; frozen = false; hudLast = ''; snap = true;
+    cam.x = 0; cam.y = P.y - vh0() * 0.64; camGroundY = P.y; state = 'play'; frozen = false; hudLast = ''; snap = true;
     recPush(true); syncEnv(); if (cb.onStart) { cb.onStart(); }
   }
 
@@ -254,7 +254,7 @@
     if (outLives) { P.lives = W.lives; } else if (P.lives < 1) { P.lives = 1; }
     P.water = Math.max(P.water, 35); P.thirst = 0;
     feat.bottles.forEach(function (b) { b.taken = cp.bottles.indexOf(b.id) >= 0; });
-    crumbReset(); feat.trains.forEach(trainReset); feat.npcs.forEach(function (n) { n.st = 'wait'; }); if (window.Fauna) { Fauna.reset(feat); } rocks = []; warns = []; zoneNow = -1; wind.t = 0; wind.str = 0; cam.x = Math.max(0, P.x - 100); cam.y = P.y - vh0() * 0.64; state = 'play'; fadeDir = -1; snap = true;
+    crumbReset(); feat.trains.forEach(trainReset); feat.npcs.forEach(function (n) { n.st = 'wait'; }); if (window.Fauna) { Fauna.reset(feat); } rocks = []; warns = []; zoneNow = -1; wind.t = 0; wind.str = 0; cam.x = Math.max(0, P.x - 100); cam.y = P.y - vh0() * 0.64; camGroundY = P.y; state = 'play'; fadeDir = -1; snap = true;
   }
 
   /* ---------- mise à jour ---------- */
@@ -1462,7 +1462,7 @@
   }
 
   function syncEnv() {
-    EV.A = A; EV.G = G; EV.GF = GF; EV.TYPE = TYPE; EV.feat = feat; EV.cam = cam; EV.time = time; EV.len = len; EV.P = P; EV.W = W; EV.L = L;
+    EV.A = A; EV.G = G; EV.GF = GF; EV.TYPE = TYPE; EV.feat = feat; EV.cam = cam; EV.camGroundY = camGroundY; EV.time = time; EV.len = len; EV.P = P; EV.W = W; EV.L = L;
     EV.state = state; EV.wonT = wonT; EV.vw = curVw; EV.vh = curVh; EV.Sc = Sc; EV.DPR = DPR;
     EV.nz = nz; EV.hash = hash; EV.mix = mix; EV.rgba = rgba; EV.clamp = clamp; EV.lerp = lerp; EV.sstep = sstep;
     EV.hGrad = hGrad; EV.ridge = ridge; EV.drawTreeRow = drawTreeRow; EV.board = board; EV.pcol = pcol; EV.midFn = midFn; EV.BASE_Y = BASE_Y; EV.liveGaps = liveGaps; EV.crumbs = feat ? feat.crumbs : []; EV.ZN = ZN; EV.RAIL = RAIL; EV.LEDGE = LEDGE; EV.trains = feat ? feat.trains : []; EV.GF = GF; EV.FOGD = FOGD; EV.LOOK = LOOK; EV.wind = wind; EV.HSC = HSC; EV.emitDust = function (x, y, n) { dust(x, y, n, '#d8c7ad', 6, 5); };
@@ -1481,6 +1481,37 @@
     var ppu = Math.max(2, Sc * dpr), key = String(Math.round(ppu * 10));
     if (tileKey === key && tilePat) { return; } tileKey = key;
     var t = A.scoriaTile(ppu); tile = t; tilePat = null; return t;
+  }
+
+
+  /* Cible verticale ancrée au sol G[x] : un saut (~29 px) ne fait pas bouger camY.
+     On ne suit P.y que lors d'une vraie chute (fosse / vide) ou d'un dénivelé de sol. */
+  function solidGroundY() {
+    var gi = P ? (P.x | 0) : 0, gy = gAt(gi), s, g2;
+    if (isFinite(gy) && gy > -1e5) { return gy; }
+    for (s = 1; s <= 48; s++) {
+      g2 = gAt(gi - s);
+      if (isFinite(g2) && g2 > -1e5) { return g2; }
+      g2 = gAt(gi + s);
+      if (isFinite(g2) && g2 > -1e5) { return g2; }
+    }
+    if (camGroundY != null && isFinite(camGroundY) && camGroundY > -1e5) { return camGroundY; }
+    return P ? P.y : BASE_Y;
+  }
+  function camTargetY(vh, lookT, k) {
+    var gy = solidGroundY(), drop;
+    if (camGroundY == null || !isFinite(camGroundY) || camGroundY < -1e5) { camGroundY = gy; }
+    if (state === 'dying' && !P.onGround) { return cam.y; }
+    if (!P.onGround && P.y > camGroundY + 18) {
+      camGroundY += (P.y - camGroundY) * Math.min(1, k * 1.15);
+      return P.y - vh * lookT;
+    }
+    if (P.onGround) { camGroundY = gy; }
+    else {
+      drop = gy - camGroundY;
+      if (drop < 22 || P.y >= gy - 6) { camGroundY = gy; }
+    }
+    return camGroundY - vh * lookT;
   }
 
   function draw(c, Wpx, Hpx, dpr) {
@@ -1503,12 +1534,15 @@
     var nearT = feat.trains.some(function (t) { return P.x > t.x0 - 330 && P.x < t.x1 + 6 && t.state !== 'pass'; }), fwT = state === 'won' ? 0.26 : (P.face > 0 ? (npcLook ? 0.2 : nearT ? 0.25 : 0.36) : 0.56);
     fwS += (fwT - fwS) * (1 - Math.exp(-frameDt * 3)); var fw = fwT === 0.56 || state === 'won' ? fwT : fwS; if (snap) { fwS = fwT; }
     var lookT = lookOv != null ? lookOv : (state === 'won' ? ((W && W.winLook != null) ? W.winLook : ((TH && TH.winLook != null) ? TH.winLook : 0.58)) : ((TH && TH.playLook != null) ? TH.playLook : 0.64));
-    var tx = P.x - vw * fw, ty = P.y - vh * lookT, k = 1 - Math.exp(-frameDt * 7);
+    var k = 1 - Math.exp(-frameDt * 7);
+    var tx = P.x - vw * fw, ty = camTargetY(vh, lookT, k);
     if (state === 'dying' && !P.onGround) { ty = cam.y; }
     if (snap) { cam.x = tx; cam.y = ty; snap = false; }
     cam.x += (tx - cam.x) * k; cam.y += (ty - cam.y) * k;
     cam.x = Math.max(0, Math.min(len - vw, cam.x));
     var gs0 = vh * 0.66, gain = (BASE_Y - vh * 0.64) - cam.y;
+    lastBg = { camY: cam.y, camGroundY: camGroundY, gain: gain, gs0: gs0, hy: gs0 - 34 + gain * 0.045, pY: P.y, gY: gAt(P.x | 0), onGround: P.onGround, layers: [] };
+    window.__bgProbe = lastBg;
     c.setTransform(DPR * Sc, 0, 0, DPR * Sc, 0, 0); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
     syncEnv(); window.Mech && Mech.update(EV, frameDt);
     if (TH && TH.drawBackground) { TH.drawBackground(c, vw, vh, gs0, gain, EV); } else { drawBackground(c, vw, vh, gs0, gain); }
@@ -1531,7 +1565,7 @@
       feat.trains.forEach(function (tr) { Mech.trainBody(c, tr, EV); });
       feat.npcs.forEach(function (n) { Mech.npc(c, n, EV); });
       Mech.fog(c, vw, vh, EV); if (!(W && W.noFogPoles)) { Mech.fogPoles(c, xa, xb, EV); }
-      if (Mech.K.fog > 0.1) { feat.trains.forEach(function (tr) { if (tr.x1 > xa - 40 && tr.x0 < xb + 40) { Mech.crossing(c, tr, EV); } }); }
+      if (Mech.K.fog > 0.1) { feat.trains.forEach(function (tr) { if (tr.x1 > xa - 40 && tr.x0 < xb + 40) { var half = (tr.len || 232) * 0.5; if (tr.state === 'pass' && tr.tx + half > tr.x0 && tr.tx - half < tr.x1) { return; } Mech.crossing(c, tr, EV); } }); }
     }
     if (window.Fauna) { Fauna.drawMid(c, xa, xb, EV); }
     if (window.Fauna && Fauna.drawWeather) { c.save(); c.translate(cam.x, cam.y); Fauna.drawWeather(c, vw, vh, EV); c.restore(); }
@@ -1623,14 +1657,14 @@
     invalidateGfx: invalidateGfx,
     profile: profile, env: function () { return { sun: Mech.K.sun, snow: Mech.K.snow, fog: Mech.K.fog, wind: wind.str, windWarn: wind.warn }; }, rate: rate, rateParts: rateParts, summitInfo: function () { return { x: feat.summitX, y: feat.summitY, topY: feat.topY }; }, setVista: function (v) { vistaMode = v; }, setZoom: function (z, look) { zoomOv = z; lookOv = z == null ? null : (look == null ? null : look); }, getZoom: function () { return zoom; }, getLook: function () { return lookOv != null ? lookOv : (state === 'won' ? ((W && W.winLook != null) ? W.winLook : ((TH && TH.winLook != null) ? TH.winLook : 0.58)) : ((TH && TH.playLook != null) ? TH.playLook : 0.64)); },
     /* aides de test */
-    _dbg: function () { return P ? { x: P.x, y: P.y, onGround: P.onGround, lives: P.lives, water: P.water, state: state, summitX: feat.summitX, stats: stats, clock: clock, len: len, bottles: feat.bottles.map(function (b) { return [b.x, b.taken]; }), gaps: feat.gaps.map(function (g) { return [g.x0, g.x1]; }), crumbs: feat.crumbs.map(function (q) { return [q.x0, q.x1, q.state, Math.round(q.t * 100) / 100]; }), craterX: feat.rimX, warns: warns.length, warnsOk: warns.filter(function (w) { return w.ok; }).length, rocks: rocks.map(function (r) { return [Math.round(r.x), Math.round(r.y), r.ground]; }), rockCount: rockCount, cp: lastCp.id, cam: [cam.x, cam.y], zoom: zoom, npcDbg: feat.npcs.map(function (n) { return [n.st, Math.round(n.x)]; }), vw: curVw, vh: curVh, zones: feat.zones, boulders: feat.boulders.map(function (b) { return b.x; }), finds: feat.finds.map(function (f) { return [f.id, f.x, f.got]; }), cables: feat.cables, herds: (feat.herds||[]).map(function(h){return {kind:h.kind,st:h.st,cx:h.cx,x0:h.x0,x1:h.x1,animals:(h.animals||[]).map(function(a){return {x:a.x,y:a.y};})};}), raptors: (feat.raptors||[]).map(function(r){return {kind:r.kind,st:r.st,x0:r.x0,x1:r.x1};}), pebbles: (feat.pebbles||[]).map(function(q){return {x:q.x,y:q.y};}), windSt: wind.st, zn: P? (ZN[P.x|0]||0):0, hurtT: P.hurtT, stun: P.stun, inv: P.inv, vx: P.vx, vy: P.vy, jumps: stats.jumps, trains: feat.trains.map(function (t) { return { x0: t.x0, x1: t.x1, cx: t.cx, trig: t.trig, warn: t.warn, st: t.state, tx: t.tx, g: t.g, armed: t.armed, xl: t.xl, xr: t.xr, hit: t.hit }; }), npcs: feat.npcs.map(function (n) { return [n.st, Math.round(n.x || 0)]; }), env: (Game.env && Game.env()) || null } : null; },
+    _dbg: function () { return P ? { x: P.x, y: P.y, onGround: P.onGround, lives: P.lives, water: P.water, state: state, summitX: feat.summitX, stats: stats, clock: clock, len: len, bottles: feat.bottles.map(function (b) { return [b.x, b.taken]; }), gaps: feat.gaps.map(function (g) { return [g.x0, g.x1]; }), crumbs: feat.crumbs.map(function (q) { return [q.x0, q.x1, q.state, Math.round(q.t * 100) / 100]; }), craterX: feat.rimX, warns: warns.length, warnsOk: warns.filter(function (w) { return w.ok; }).length, rocks: rocks.map(function (r) { return [Math.round(r.x), Math.round(r.y), r.ground]; }), rockCount: rockCount, cp: lastCp.id, cam: [cam.x, cam.y], zoom: zoom, npcDbg: feat.npcs.map(function (n) { return [n.st, Math.round(n.x)]; }), vw: curVw, vh: curVh, zones: feat.zones, boulders: feat.boulders.map(function (b) { return b.x; }), finds: feat.finds.map(function (f) { return [f.id, f.x, f.got]; }), cables: feat.cables, herds: (feat.herds||[]).map(function(h){return {kind:h.kind,st:h.st,cx:h.cx,x0:h.x0,x1:h.x1,animals:(h.animals||[]).map(function(a){return {x:a.x,y:a.y};})};}), raptors: (feat.raptors||[]).map(function(r){return {kind:r.kind,st:r.st,x0:r.x0,x1:r.x1};}), pebbles: (feat.pebbles||[]).map(function(q){return {x:q.x,y:q.y};}), windSt: wind.st, zn: P? (ZN[P.x|0]||0):0, hurtT: P.hurtT, stun: P.stun, inv: P.inv, vx: P.vx, vy: P.vy, jumps: stats.jumps, trains: feat.trains.map(function (t) { return { x0: t.x0, x1: t.x1, cx: t.cx, trig: t.trig, warn: t.warn, st: t.state, tx: t.tx, g: t.g, armed: t.armed, xl: t.xl, xr: t.xr, hit: t.hit }; }), npcs: feat.npcs.map(function (n) { return [n.st, Math.round(n.x || 0)]; }), env: (Game.env && Game.env()) || null, camY: cam.y, camGroundY: camGroundY, gain: lastBg ? lastBg.gain : 0, bg: lastBg } : null; },
     _hurt: function (k) { hurt(k || 'rock'); },
     _sp: function () { return [(P.x - cam.x) * Sc, (P.y - cam.y) * Sc, Sc]; },
     _unlockFinds: function () { feat.finds.forEach(function (f) { f.got = false; }); },
     _bless: function () { if (P) { P.inv = 9; P.lives = 3; } },
-    _warp: function (x) { if (!P || !feat) { return; } x = Math.max(0, Math.min((feat.summitX || 0) + 40, +x || 0)); P.x = x; var gy = G[x | 0]; if (isFinite(gy)) { P.y = gy; } P.vx = 0; P.vy = 0; P.onGround = true; cam.x = Math.max(0, x - curVw * 0.45); cam.y = P.y - curVh * 0.64; },
+    _warp: function (x) { if (!P || !feat) { return; } x = Math.max(0, Math.min((feat.summitX || 0) + 40, +x || 0)); P.x = x; var gy = G[x | 0]; if (isFinite(gy)) { P.y = gy; } P.vx = 0; P.vy = 0; P.onGround = true; camGroundY = P.y; cam.x = Math.max(0, x - curVw * 0.45); cam.y = P.y - curVh * 0.64; snap = true; },
     _solid: function () { if (P) { P.inv = 0; P.hurtT = 0; P.stun = 0; } },
-    _teleport: function (x) { P.x = x; P.y = G[x | 0]; P.vx = P.vy = 0; P.onGround = true; cam.x = Math.max(0, x - 150); cam.y = P.y - vh0() * 0.64; snap = true; rocks = []; warns = []; if (window.Fauna) { Fauna.reset(feat); } },
+    _teleport: function (x) { P.x = x; P.y = G[x | 0]; P.vx = P.vy = 0; P.onGround = true; cam.x = Math.max(0, x - 150); cam.y = P.y - vh0() * 0.64; camGroundY = P.y; snap = true; rocks = []; warns = []; if (window.Fauna) { Fauna.reset(feat); } },
     _setWater: function (w) { P.water = w; },
     _clock: function (t) { clock = t; },
     _forceRock: function () { feat.zones.forEach(function (z) { if (P.x >= z.x0 - 40 && P.x <= z.x1) { warns.push({ t: 0, dur: 1.25, z: z, puff: 0, ok: true, bad: 0 }); window.Sfx && Sfx.play('rumble'); rum('warn'); } }); },
