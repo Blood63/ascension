@@ -41,9 +41,12 @@
       for (x = x0; x <= x1; x += 2) { c.lineTo(x, tY(E, x)); }
       for (x = x1; x >= x0; x -= 2) { c.lineTo(x, tY(E, x) + 2.4); }
       c.closePath(); c.fillStyle = '#b0aca2'; c.fill();
-      for (x = x0 + 1; x < x1; x += 2.6) {                           // cailloux de ballast
-        var hh = hash(x | 0, 7), yy = tY(E, x) + 0.4 + hh * Math.max(0.5, (LG[x | 0] || 0) + 1.0);
-        c.fillStyle = hh > 0.5 ? 'rgba(236,232,222,.55)' : 'rgba(50,48,44,.45)'; c.fillRect(x, yy, 1.1 + hh, 0.8);
+      /* cailloux de ballast : grille monde (pas le x0 clipped par la caméra) */
+      var bStep = 13 / 5, bk, bx;
+      for (bk = Math.ceil((x0 + 1) / bStep); bk * bStep < x1; bk++) {
+        bx = bk * bStep;
+        var hh = hash(bk, 7), yy = tY(E, bx) + 0.4 + hh * Math.max(0.5, (LG[bx | 0] || 0) + 1.0);
+        c.fillStyle = hh > 0.5 ? 'rgba(236,232,222,.55)' : 'rgba(50,48,44,.45)'; c.fillRect(bx, yy, 1.1 + hh, 0.8);
       }
       // traverses
       for (x = Math.ceil(x0 / 6.5) * 6.5; x < x1; x += 6.5) { yT = tY(E, x); c.fillStyle = '#56545a'; c.fillRect(x - 1.4, yT - 1.1, 2.8, 1.3); }
@@ -56,17 +59,20 @@
       c.beginPath(); for (x = x0; x <= x1; x += 2) { yT = tY(E, x); if (x === x0) { c.moveTo(x, yT - 3.0); } else { c.lineTo(x, yT - 3.0); } } c.lineTo(x1, tY(E, x1) - 3.0);
       c.setLineDash([1.1, 1.1]); c.strokeStyle = '#8a8f99'; c.lineWidth = 0.9; c.stroke(); c.setLineDash([]);
       // muret de pierres sèches qui soutient le remblai, côté caméra
-      for (x = x0 + 2; x < x1; x += 2.6) {
-        var hs = hash(x | 0, 19), yTop = tY(E, x) + 2.3 + hs * 0.45, yy, r, bw, bh, ox;
+      /* motif ancré en x monde (indice k), indépendant du début de run visible */
+      var mStep = 13 / 5, mk, mx;
+      for (mk = Math.ceil((x0 + 2) / mStep); mk * mStep < x1; mk++) {
+        mx = mk * mStep;
+        var hs = hash(mk, 19), yTop = tY(E, mx) + 2.3 + hs * 0.45, yy, r, bw, bh, ox;
         yy = yTop;
         for (r = 0; r < 3; r++) {
-          bw = 2.6 + hash(x + r, 21) * 1.7;
-          bh = 2.5 + hash(x + r, 29) * 1.5;
+          bw = 2.6 + hash(mk * 10 + r, 21) * 1.7;
+          bh = 2.5 + hash(mk * 10 + r, 29) * 1.5;
           ox = (r % 2) * 0.7;
           c.fillStyle = hs > 0.62 ? '#a39e94' : (hs > 0.35 ? '#7d786e' : '#5c5850');
-          c.fillRect(x - bw * 0.5 + ox, yy, bw, bh);
-          c.fillStyle = 'rgba(255,252,245,.22)'; c.fillRect(x - bw * 0.5 + ox, yy, bw, 0.45);
-          c.fillStyle = 'rgba(30,28,24,.38)'; c.fillRect(x - bw * 0.5 + ox, yy + bh - 0.4, bw, 0.4);
+          c.fillRect(mx - bw * 0.5 + ox, yy, bw, bh);
+          c.fillStyle = 'rgba(255,252,245,.22)'; c.fillRect(mx - bw * 0.5 + ox, yy, bw, 0.45);
+          c.fillStyle = 'rgba(30,28,24,.38)'; c.fillRect(mx - bw * 0.5 + ox, yy + bh - 0.4, bw, 0.4);
           yy += bh - 0.15;
         }
       }
@@ -76,7 +82,14 @@
       c.strokeStyle = 'rgba(46,40,48,.9)'; c.lineWidth = 0.5; c.stroke();
       for (k = pk0; k <= pk1; k++) {
         var px = k * 190 + hash(k, 55) * 14; skip = false;
-        E.trains.forEach(function (tr) { if (px > tr.x0 - 20 && px < tr.x1 + 20) { skip = true; } });
+        E.trains.forEach(function (tr) {
+          if (px > tr.x0 - 20 && px < tr.x1 + 20) { skip = true; }
+          /* ne pas laisser le poteau passer devant / à travers la rame en mouvement */
+          if (tr.state === 'pass') {
+            var half = (tr.len || 232) * 0.5;
+            if (px > tr.tx - half - 14 && px < tr.tx + half + 14) { skip = true; }
+          }
+        });
         if (skip || px < x0 + 4 || px > x1 - 4) { continue; }
         var yb = tY(E, px) + 0.8, ytop = yb - WIRE_H - 7;
         c.fillStyle = '#6a4a2c'; c.beginPath(); c.moveTo(px - 1.4, yb); c.lineTo(px - 0.9, ytop); c.lineTo(px + 0.9, ytop); c.lineTo(px + 1.4, yb); c.closePath(); c.fill();

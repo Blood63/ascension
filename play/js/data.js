@@ -414,6 +414,6 @@
     }
   };
 
-  var VERSION = '0.19.3';
+  var VERSION = '0.19.6';
   window.AscensionData = { MAP: MAP, LEVELS: LEVELS, WORLDS: WORLDS, VERSION: VERSION };
 })();

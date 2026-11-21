@@ -137,7 +137,7 @@
           c.save(); c.beginPath(); c.rect(0, 0, vw, vh); c.clip();
           for (ii = i0; ii * sp < off + vw + 12; ii++) {
             var hv = E.hash(ii, T.seed || 21), wx = ii * sp + hv * sp * 0.8, hh0 = fn0(wx); if (hv > T.dens || hh0 > T.maxH || hh0 < 8) { continue; } var hh = hh0 * hs;
-            var tx = wx - off, ty = base - hh + 1.2, sz = T.size * (0.75 + E.hash(ii, 23) * 0.5), op = { haze: T.haze, hazeCol: T.hazeCol, seed: ii, t: E.time, sway: false };
+            var tx = wx - off, ty = base - hh + 3, sz = T.size * (0.75 + E.hash(ii, 23) * 0.5), op = { haze: T.haze, hazeCol: T.hazeCol, seed: ii, t: E.time, sway: false };
             if (window.__treeAuditOn) { window.__treeAudit.push({ kind: 'layer', wx: wx, hh: hh, ty: ty, base: base, ok: hh >= 8 }); }
             var kd = T.kind(wx, hv); if (kd === 'beech') { S.beech(c, tx, ty, sz, op); } else if (kd === 'oak' && S.oak) { S.oak(c, tx, ty, sz * 1.05, op); } else { S.fir(c, tx, ty, sz, op); }
           }

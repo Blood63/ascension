@@ -1,5 +1,5 @@
-# Ascension v0.19.3 — empreintes SHA-256 (SHA-256, octets)
-# Ascension-v0.19.3.apk — 13 990 722 octets (13,99 Mo)
-# Ascension-v0.19.3-offline.html — 15 032 113 octets (15,03 Mo)
-e8496b6dd74fcc0cc196bee7f5013f2027d1b6a54adc33ccd0ec9014f59deacd  Ascension-v0.19.3.apk
-8c9a94a21b51a12df8eb7fca7359d0b22229995a11ff6050707485837eec7de4  Ascension-v0.19.3-offline.html
+# Ascension v0.19.6 — empreintes SHA-256 (SHA-256, octets)
+# Ascension-v0.19.6.apk — 13 993 055 octets (13,99 Mo)
+# Ascension-v0.19.6-offline.html — 15 039 870 octets (15,04 Mo)
+899a3115d5944bcdd6d8e1064101067218c7a010dfe5b754b7b9556445b9ad43  Ascension-v0.19.6.apk
+8cca33f994881b42d0ce0e5ba6dfd3f48d0627dc27ebf9dbccdec40f4594f88e  Ascension-v0.19.6-offline.html
